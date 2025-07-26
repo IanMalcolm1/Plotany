@@ -13,7 +13,24 @@
                LineBreakMode="WordWrap" />
 
             <Button Text="Query For Soil"
-                Clicked="GetSoilOnClick" />
+                Clicked="GetSoil" />
+
+            <Button Text="Query For Climate"
+                Clicked="GetClimate" />
+
+
+            <Button Text="Get Plants"
+                Clicked="GetPlant" />
+
+            <CollectionView x:Name="ResultsCollection">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="5" Padding="10" BackgroundColor="#eeeeee">
+                            <Label Text="{Binding}" />
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
 
         </StackLayout>
