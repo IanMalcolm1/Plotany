@@ -35,7 +35,7 @@ namespace Plotany
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 })
                 .UseArcGISRuntime(config => config
-                .UseApiKey("AAPTxy8BH1VEsoebNVZXo8HurNcmxnU9u4gO2oOoNPf4_nk6SmmuM466iEB7-kqVyRIqHGEDrQ9ikV61_r_0o3lt5t6TtZyAb8bWzVwzNqzQFf2JjIjsEVxXmftAUeoK11qZuqneceuMVjO2luVcBAPc_91eHEn0sv0bzt525a_f80wHR3A73vCg_kz2OvUo9PWKP1xOePpfz7EpRVlKjzKZhOaDgVxr8uHZyrhxSZLOWYzdDVYbpRSDz5ekdRtfUpiVAT1_9vPX9Rgx")
+                .UseApiKey("AAPK2967d54657e342d398c129c8581b516686jXNGXVc6CFPZVRVIFV6YbjpO_fn7fz4S2ECOR2nkZkZXxyfl51Iy8AS6h3qcXV")
                 ).UseArcGISToolkit();
             // Enable support for TimestampOffset fields, which also changes behavior of Date fields.
             // For more information see https://links.esri.com/DotNetDateTime

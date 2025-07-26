@@ -20,6 +20,11 @@
                 ContentTemplate="{DataTemplate local:MainPage}"
                 Route="MainPage" />
         </Tab>
+        <Tab Title="View Garden">
+            <ShellContent Title="My Garden"
+                             ContentTemplate="{DataTemplate local:ViewGarden}"
+                             Route="ViewGarden" />
+        </Tab>
     </TabBar>
 
 </Shell>
