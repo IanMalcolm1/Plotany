@@ -61,5 +61,11 @@
 		<PackageReference Include="Esri.ArcGISRuntime.Toolkit.Maui" Version="200.7.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="PlantList.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 	
 </Project>
