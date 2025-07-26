@@ -73,9 +73,16 @@
             <CollectionView x:Name="PlantCollection">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="20,5,20,5" Padding="15" BackgroundColor="#CDE3D0">
-                            <Label Text="{Binding}" FontSize="14"/>
-                        </Frame>
+                        <Button 
+                            x:Name="AddPlantButton"
+                            Margin="20,5,20,5" 
+                            Padding="15" 
+                            BackgroundColor="#CDE3D0"
+                            TextColor="#1F2F2E"                           
+                            Text="{Binding}" 
+                            FontSize="14"
+                            Clicked="AddPlantToGarden">
+                        </Button>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
