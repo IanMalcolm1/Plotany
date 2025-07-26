@@ -8,17 +8,17 @@
     Title="Plotany">
 
     <TabBar>
-        <Tab Title="Plots" Icon="plots_icon.png">
+        <Tab Title="Home" Icon="nothing.png">
             <ShellContent
-                Title="Home 1"
+                Title="Home"
                 ContentTemplate="{DataTemplate local:MainPage}"
-                Route="PlotsPage" />
+                Route="HomePage" />
         </Tab>
-        <Tab Title="Plots 2">
+        <Tab Title="Community" Icon="nothing.png">
             <ShellContent
-                Title="Home 2"
-                ContentTemplate="{DataTemplate local:MainPage}"
-                Route="MainPage" />
+                Title="Quarantines and Pest Reports"
+                ContentTemplate="{DataTemplate local:QuarantinesTabView}"
+                Route="QuarantinesPage" />
         </Tab>
     </TabBar>
 
