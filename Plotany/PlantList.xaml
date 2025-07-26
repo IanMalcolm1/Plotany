@@ -12,8 +12,9 @@
                Padding="20"
                LineBreakMode="WordWrap" />
 
-            <Button Text="Query Feature"
-                Clicked="OnQueryButtonClicked" />
+            <Button Text="Query For Soil"
+                Clicked="GetSoilOnClick" />
+
 
         </StackLayout>
     </ScrollView>

@@ -12,32 +12,22 @@ public partial class PlantList : ContentPage
 		InitializeComponent();
 	}
 
-	public async Task queryMapPoint()
+	public async Task querySoilAtMapPoint()
 	{
 		string url = "https://landscape11.arcgis.com/arcgis/rest/services/USA_Soils_Map_Units/featureserver/0";
         var serviceFeatureTable = new ServiceFeatureTable(new Uri(url));
 
-        double tolerance = 0.0001; // meters
         var mapPoint = new MapPoint(-118.805000, 34.027000, SpatialReferences.Wgs84); 
-
-        // Buffer the point slightly to make spatial query practical
-        var envelope = new Envelope(
-            mapPoint.X - tolerance,
-            mapPoint.Y - tolerance,
-            mapPoint.X + tolerance,
-            mapPoint.Y + tolerance,
-            mapPoint.SpatialReference
-        );
 
         // Create query parameters
         var queryParams = new QueryParameters
         {
-            Geometry = envelope,
+            Geometry = mapPoint,
             SpatialRelationship = SpatialRelationship.Intersects,
             MaxFeatures = 1
         };
 
-        var result = await serviceFeatureTable.QueryFeaturesAsync(queryParams);
+        var result = await serviceFeatureTable.QueryFeaturesAsync(queryParams, QueryFeatureFields.LoadAll);
         var feature = result.FirstOrDefault();
 
 
@@ -52,8 +42,8 @@ public partial class PlantList : ContentPage
 
     }
 
-    private async void OnQueryButtonClicked(object sender, EventArgs e)
+    private async void GetSoilOnClick(object sender, EventArgs e)
     {
-        await queryMapPoint();
+        await querySoilAtMapPoint();
     }
 }
