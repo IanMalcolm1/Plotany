@@ -14,6 +14,13 @@
                 ContentTemplate="{DataTemplate local:MainPage}"
                 Route="HomePage" />
         </Tab>
+
+        <Tab Title="Plants">
+            <ShellContent
+                Title="Plants"
+                ContentTemplate="{DataTemplate local:PlantList}"
+                Route="PlantList" />
+
         <Tab Title="Community" Icon="nothing.png">
             <ShellContent
                 Title="Quarantines and Pest Reports"
