@@ -20,6 +20,7 @@
                 Title="Plants"
                 ContentTemplate="{DataTemplate local:PlantList}"
                 Route="PlantList" />
+        </Tab>
 
         <Tab Title="Community" Icon="nothing.png">
             <ShellContent
