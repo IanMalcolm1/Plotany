@@ -19,6 +19,8 @@ namespace Plotany
 #warning To use ArcGIS location services (including basemaps) specify your API Key access token or require the user to sign in using a valid ArcGIS account.
                 //Basemap = new Basemap(BasemapStyle.ArcGISStreets)
             };
+
+            SetupMap();
         }
 
         private Esri.ArcGISRuntime.Mapping.Map _map;
@@ -40,5 +42,15 @@ namespace Plotany
                  PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void SetupMap()
+        {
+
+            // Create a new map with a 'topographic vector' basemap.
+            Map = new Map(BasemapStyle.ArcGISTopographic);
+
+            var mapCenterPoint = new MapPoint(-118.805, 34.027, SpatialReferences.Wgs84);
+            Map.InitialViewpoint = new Viewpoint(mapCenterPoint, 100000);
+        }
     }
 }
