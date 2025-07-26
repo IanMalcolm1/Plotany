@@ -17,35 +17,8 @@ public partial class PlantList : ContentPage
 		string url = "https://landscape11.arcgis.com/arcgis/rest/services/USA_Soils_Map_Units/featureserver/0";
         var serviceFeatureTable = new ServiceFeatureTable(new Uri(url));
 
-        await serviceFeatureTable.LoadAsync();
-
-        //var queryParams = new QueryParameters
-        //{
-        //    WhereClause = "1=1", // Get all features (up to max limit)
-        //    MaxFeatures = 500     // Optional: limit the number for testing
-        //};
-
-        //var result = await serviceFeatureTable.QueryFeaturesAsync(queryParams);
-
-        //foreach (var feature in result)
-        //{
-        //    if (feature.Attributes.TryGetValue("esrisymbology", out object value) && value != null)
-        //    {
-        //        Console.WriteLine($"es: {value}");
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("MUKEY not found or is null.");
-        //    }
-        //}
-
-        //foreach (var field in serviceFeatureTable.Fields)
-        //{
-        //    Console.WriteLine($"Field: {field.Name}");
-        //}
-
         double tolerance = 0.0001; // meters
-        var mapPoint = new MapPoint(-111.7, 34.5, SpatialReferences.Wgs84);
+        var mapPoint = new MapPoint(-118.805000, 34.027000, SpatialReferences.Wgs84); 
 
         // Buffer the point slightly to make spatial query practical
         var envelope = new Envelope(
@@ -68,13 +41,13 @@ public partial class PlantList : ContentPage
         var feature = result.FirstOrDefault();
 
 
-        if (feature.Attributes.TryGetValue("taxorder", out var value) && value != null)
+        if (feature.Attributes.TryGetValue("esrisymbology", out var value) && value != null)
         {
-            await DisplayAlert("Soil Info", $"taxorder: {value}", "OK");
+            await DisplayAlert("Soil Info", $"Soil Found: {value}", "OK");
         }
         else
         {
-            await DisplayAlert("Soil Info", "taxorder: no soil", "OK");
+            await DisplayAlert("Soil Info", "Not Found: no soil", "OK");
         }
 
     }
