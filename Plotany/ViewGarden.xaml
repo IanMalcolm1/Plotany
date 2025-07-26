@@ -7,7 +7,7 @@
         <Style x:Key="IconStyle" TargetType="Button">
             <Style.Setters>
                 <Setter Property="FontFamily" Value="CalciteUIIconsMediumFontFamily" />
-                <Setter Property="FontSize" Value="25" />
+                <Setter Property="FontSize" Value="14" />
             </Style.Setters>
         </Style>
     </ContentPage.Resources>
@@ -25,27 +25,27 @@
             <Button x:Name="ToggleGeometryEditorPanelButton" Grid.Row="0" HorizontalOptions="Fill" Pressed="ToggleGeometryEditorPanelButton_Pressed" Text="Show UI" />
             <ScrollView x:Name="GeometryEditorPanel" Grid.Row="1" IsVisible="False" MaximumHeightRequest="400">
                 <Grid ColumnDefinitions="*, *" ColumnSpacing="5" RowDefinitions="auto, auto, auto, auto, auto, auto, auto" RowSpacing="5">
-                    <Button x:Name="PointButton" Grid.Row="0" Clicked="PointButton_Click" Style="{StaticResource IconStyle}" Text="&#xe9f9;" ToolTipProperties.Text="Point" />
-                    <Button x:Name="MultipointButton" Grid.Row="0" Grid.Column="1" Clicked="MultipointButton_Click" FontSize="15" Style="{StaticResource IconStyle}" Text="&#xe9f9;&#xe9f9;" ToolTipProperties.Text="Multipoint" />
-                    <Button x:Name="PolylineButton" Grid.Row="1" Clicked="PolylineButton_Click" Style="{StaticResource IconStyle}" Text="&#xe93f;" ToolTipProperties.Text="Polyline / no shape fill" />
-                    <Button x:Name="PolygonButton" Grid.Row="1" Grid.Column="1" Clicked="PolygonButton_Click" Style="{StaticResource IconStyle}" Text="&#xe9fb;" ToolTipProperties.Text="Polygon / shape fill" />
-                    <Border Grid.Row="2" Grid.ColumnSpan="2" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Dark}}">
+                    <Button x:Name="PointButton" Grid.Row="0" Clicked="PointButton_Click" Style="{StaticResource IconStyle}" Text="Add Plant;" ToolTipProperties.Text="Point" />
+                    <!--<Button x:Name="MultipointButton" Grid.Row="0" Grid.Column="1" Clicked="MultipointButton_Click" FontSize="15" Style="{StaticResource IconStyle}" Text="&#xe9f9;&#xe9f9;" ToolTipProperties.Text="Multipoint" />-->
+                    <!--<Button x:Name="PolylineButton" Grid.Row="1" Clicked="PolylineButton_Click" Style="{StaticResource IconStyle}" Text="&#xe93f;" ToolTipProperties.Text="Polyline / no shape fill" />-->
+                    <Button x:Name="PolygonButton" Grid.Row="0" Grid.Column="1" Clicked="PolygonButton_Click" Style="{StaticResource IconStyle}" Text="Plot Garden" ToolTipProperties.Text="Polygon / shape fill" />
+                   <!-- <Border Grid.Row="2" Grid.ColumnSpan="2" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Dark}}">
                         <Picker x:Name="ToolPicker" SelectedIndexChanged="ToolPicker_SelectedIndexChanged" ToolTipProperties.Text="Tools" WidthRequest="150" />
-                    </Border>
-                    <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="5" Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Dark}}">
+                    </Border>-->
+                   <!-- <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="5" Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Dark}}">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="5" />
                         </Border.StrokeShape>
                         <Grid ColumnDefinitions="35,*">
-                            <CheckBox x:Name="UniformScaleCheckBox" Margin="3,0,5,0" CheckedChanged="CheckBox_CheckedChanged" />
-                            <Label Grid.Column="1" Text="Uniform Scale" VerticalOptions="Center" />
+                           <CheckBox x:Name="UniformScaleCheckBox" Margin="3,0,5,0" CheckedChanged="CheckBox_CheckedChanged" /> 
+                           <Label Grid.Column="1" Text="Uniform Scale" VerticalOptions="Center" />
                         </Grid>
-                    </Border>
-                    <Button Grid.Row="4" Clicked="UndoButton_Click" IsEnabled="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="&#xeb0b;" ToolTipProperties.Text="Undo" />
-                    <Button Grid.Row="4" Grid.Column="1" Clicked="RedoButton_Click" IsEnabled="{Binding GeometryEditor.CanRedo, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="&#xea29;" ToolTipProperties.Text="Redo" />
-                    <Button x:Name="DeleteSelectedButton" Grid.Row="5" Clicked="DeleteSelectedButton_Click" IsEnabled="{Binding GeometryEditor.SelectedElement.CanDelete, Source={x:Reference GardenMapView}, FallbackValue=False}" Style="{StaticResource IconStyle}" Text="&#xe83e;" ToolTipProperties.Text="Delete selected" />
-                    <Button x:Name="SaveButton" Grid.Row="5" Grid.Column="1" Clicked="SaveButton_Click" IsEnabled="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="&#xe795;" ToolTipProperties.Text="Save edits" />
-                    <Button x:Name="DiscardButton" Grid.Row="6" Clicked="DiscardButton_Click" IsEnabled="{Binding GeometryEditor.IsStarted, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="&#xe7ac;" ToolTipProperties.Text="Discard edits" />
+                    </Border>-->
+                    <Button Grid.Row="4" Clicked="UndoButton_Click" IsEnabled="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="Undo" ToolTipProperties.Text="Undo" />
+                    <Button Grid.Row="4" Grid.Column="1" Clicked="RedoButton_Click" IsEnabled="{Binding GeometryEditor.CanRedo, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="Redo" ToolTipProperties.Text="Redo" />
+                    <Button x:Name="DeleteSelectedButton" Grid.Row="5" Clicked="DeleteSelectedButton_Click" IsEnabled="{Binding GeometryEditor.SelectedElement.CanDelete, Source={x:Reference GardenMapView}, FallbackValue=False}" Style="{StaticResource IconStyle}" Text="Delete Selected" ToolTipProperties.Text="Delete selected" />
+                    <Button x:Name="SaveButton" Grid.Row="5" Grid.Column="1" Clicked="SaveButton_Click" IsEnabled="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="Save" ToolTipProperties.Text="Save edits" />
+                    <Button x:Name="DiscardButton" Grid.Row="6" Clicked="DiscardButton_Click" IsEnabled="{Binding GeometryEditor.IsStarted, Source={x:Reference GardenMapView}}" Style="{StaticResource IconStyle}" Text="Ignore" ToolTipProperties.Text="Discard edits" />
                 </Grid>
             </ScrollView>
         </Grid>

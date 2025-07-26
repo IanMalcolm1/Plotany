@@ -57,14 +57,14 @@ namespace Plotany
                 { "ReticleVertex", new ReticleVertexTool() }
             };
 
-            ToolPicker.ItemsSource = _toolDictionary.Keys.ToList();
-            ToolPicker.SelectedIndex = 0;
+            //ToolPicker.ItemsSource = _toolDictionary.Keys.ToList();
+            //ToolPicker.SelectedIndex = 0;
 
             _geometryButtons = new Dictionary<GeometryType, Button>
             {
                 { GeometryType.Point, PointButton },
-                { GeometryType.Multipoint, MultipointButton },
-                { GeometryType.Polyline, PolylineButton },
+               // { GeometryType.Multipoint, MultipointButton },
+               // { GeometryType.Polyline, PolylineButton },
                 { GeometryType.Polygon, PolygonButton }
             };
         }
@@ -248,12 +248,17 @@ namespace Plotany
                 var location = await WaitForLocationAsync(timeoutMillis: 10000);
                 if (location != null)
                 {
-                    await GardenMapView.SetViewpointCenterAsync(location, 100);
+                    await GardenMapView.SetViewpointCenterAsync(new MapPoint(-117.1828359, 34.0383765, SpatialReferences.Wgs84), 100);
                 }
                 else
                 {
-                    await DisplayAlert("Timeout", "Could not get your location.", "OK");
+                    // Fallback test point: somewhere reasonable (e.g., your target location)
+                    var fallbackPoint = new MapPoint(-117.1828359, 34.0383765, SpatialReferences.Wgs84);
+                    await GardenMapView.SetViewpointCenterAsync(fallbackPoint, 100);
+
+                    await DisplayAlert("Location fallback", "Using simulated location (Hyderabad).", "OK");
                 }
+
             }
             catch (Exception ex)
             {
@@ -315,11 +320,11 @@ namespace Plotany
                 EmptyStatePanel.IsVisible = true;
 
                 PointButton.IsEnabled = true;
-                MultipointButton.IsEnabled = true;
-                PolylineButton.IsEnabled = true;
+                //MultipointButton.IsEnabled = true;
+                //PolylineButton.IsEnabled = true;
                 PolygonButton.IsEnabled = true;
-                ToolPicker.IsEnabled = true;
-                UniformScaleCheckBox.IsEnabled = true;
+                //ToolPicker.IsEnabled = true;
+                //UniformScaleCheckBox.IsEnabled = true;
                 SaveButton.IsEnabled = true;
                 DiscardButton.IsEnabled = true;
                 DeleteSelectedButton.IsEnabled = true;
@@ -341,11 +346,11 @@ namespace Plotany
         private void DisableEditingTools()
         {
             PointButton.IsEnabled = false;
-            MultipointButton.IsEnabled = false;
-            PolylineButton.IsEnabled = false;
+           // MultipointButton.IsEnabled = false;
+            //PolylineButton.IsEnabled = false;
             PolygonButton.IsEnabled = false;
-            ToolPicker.IsEnabled = false;
-            UniformScaleCheckBox.IsEnabled = false;
+            //ToolPicker.IsEnabled = false;
+            //UniformScaleCheckBox.IsEnabled = false;
             SaveButton.IsEnabled = false;
             DiscardButton.IsEnabled = false;
             DeleteSelectedButton.IsEnabled = false;
@@ -357,27 +362,27 @@ namespace Plotany
             if (!_geometryEditor.IsStarted)
             {
                 DisableOtherGeometryButtons(PointButton);
-                ToolPicker.IsEnabled = false;
-                UniformScaleCheckBox.IsEnabled = false;
+                //ToolPicker.IsEnabled = false;
+                //UniformScaleCheckBox.IsEnabled = false;
                 _geometryEditor.Start(GeometryType.Point);
             }
         }
 
-        private void MultipointButton_Click(object sender, EventArgs e)
-        {
-            if (!_geometryEditor.IsStarted)
-            {
-                DisableOtherGeometryButtons(MultipointButton);
-                ToolPicker.IsEnabled = false;
-                _geometryEditor.Start(GeometryType.Multipoint);
-            }
-        }
+        //private void MultipointButton_Click(object sender, EventArgs e)
+        //{
+        //    if (!_geometryEditor.IsStarted)
+        //    {
+        //        //DisableOtherGeometryButtons(MultipointButton);
+        //        //ToolPicker.IsEnabled = false;
+        //        _geometryEditor.Start(GeometryType.Multipoint);
+        //    }
+        //}
 
         private void PolylineButton_Click(object sender, EventArgs e)
         {
             if (!_geometryEditor.IsStarted)
             {
-                DisableOtherGeometryButtons(PolylineButton);
+               // DisableOtherGeometryButtons(PolylineButton);
                 _geometryEditor.Start(GeometryType.Polyline);
             }
         }
@@ -387,38 +392,73 @@ namespace Plotany
             if (!_geometryEditor.IsStarted)
             {
                 DisableOtherGeometryButtons(PolygonButton);
+                var geometryEditorStyle = new GeometryEditorStyle
+                {
+                    FillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, System.Drawing.Color.Transparent, null),
+                    VertexSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Red, 10),
+                    SelectedVertexSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Green, 12)
+                };
+
+                // Create a VertexTool and assign the custom style
+                var vertexTool = new VertexTool
+                {
+                    Style = geometryEditorStyle
+                };
+
+                // Assign the tool to the GeometryEditor
+                _geometryEditor = new GeometryEditor
+                {
+                    Tool = vertexTool
+                };
+
+                // Set the GeometryEditor to the MapView
+                GardenMapView.GeometryEditor = _geometryEditor;
                 _geometryEditor.Start(GeometryType.Polygon);
+             
+
             }
+            
         }
 
-        private void ToolPicker_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (ToolPicker.SelectedItem == null) return;
+        //private void ToolPicker_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    if (ToolPicker.SelectedItem == null) return;
 
-            var tool = _toolDictionary[ToolPicker.SelectedItem.ToString()];
-            _geometryEditor.Tool = tool;
+        //    var tool = _toolDictionary[ToolPicker.SelectedItem.ToString()];
+        //    _geometryEditor.Tool = tool;
 
-            PointButton.IsEnabled = MultipointButton.IsEnabled =
-                !_geometryEditor.IsStarted && (tool is VertexTool || tool is ReticleVertexTool);
-            UniformScaleCheckBox.IsEnabled = !(tool is ReticleVertexTool);
-        }
+        //    //PointButton.IsEnabled = MultipointButton.IsEnabled =
+        //    //    !_geometryEditor.IsStarted && (tool is VertexTool || tool is ReticleVertexTool);
+        //    UniformScaleCheckBox.IsEnabled = !(tool is ReticleVertexTool);
+        //}
 
-        private void CheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
-        {
-            var scaleMode = UniformScaleCheckBox.IsChecked ?
-                GeometryEditorScaleMode.Uniform :
-                GeometryEditorScaleMode.Stretch;
+        //private void CheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
+        //{
+        //    var scaleMode = UniformScaleCheckBox.IsChecked ?
+        //        GeometryEditorScaleMode.Uniform :
+        //        GeometryEditorScaleMode.Stretch;
 
-            foreach (var tool in _toolDictionary.Values)
-            {
-                if (tool is FreehandTool freehandTool)
-                    freehandTool.Configuration.ScaleMode = scaleMode;
-                else if (tool is VertexTool vertexTool)
-                    vertexTool.Configuration.ScaleMode = scaleMode;
-                else if (tool is ShapeTool shapeTool)
-                    shapeTool.Configuration.ScaleMode = scaleMode;
-            }
-        }
+        //    foreach (var tool in _toolDictionary.Values)
+        //    {
+        //        if (tool is FreehandTool freehandTool)
+        //            freehandTool.Configuration.ScaleMode = scaleMode;
+        //        else if (tool is VertexTool vertexTool)
+        //        {
+        //            vertexTool.Configuration.ScaleMode = scaleMode;
+        //            if (vertexTool != null && _geometryEditor.Geometry.GeometryType == GeometryType.Polygon)
+        //            {
+        //                var style = vertexTool.Style;
+
+        //                // Create a new symbol with the desired size
+        //                var vertexSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Red, 10); // Size 10
+        //                style.VertexSymbol = vertexSymbol;
+        //            }
+        //        }
+
+        //        else if (tool is ShapeTool shapeTool)
+        //            shapeTool.Configuration.ScaleMode = scaleMode;
+        //    }
+        //}
 
         private void UndoButton_Click(object sender, EventArgs e)
         {
@@ -457,8 +497,8 @@ namespace Plotany
 
                 if (geometryType == GeometryType.Point || geometryType == GeometryType.Multipoint)
                 {
-                    ToolPicker.SelectedIndex = 0;
-                    UniformScaleCheckBox.IsEnabled = geometryType != GeometryType.Point;
+                    //ToolPicker.SelectedIndex = 0;
+                    //UniformScaleCheckBox.IsEnabled = geometryType != GeometryType.Point;
                 }
 
                 DisableOtherGeometryButtons(_geometryButtons[geometryType]);
@@ -487,11 +527,11 @@ namespace Plotany
                 _selectedGraphic = null;
             }
 
-            PointButton.IsEnabled = MultipointButton.IsEnabled =
-                _geometryEditor.Tool is VertexTool || _geometryEditor.Tool is ReticleVertexTool;
-            PolylineButton.IsEnabled = PolygonButton.IsEnabled = true;
-            ToolPicker.IsEnabled = true;
-            UniformScaleCheckBox.IsEnabled = true;
+            //PointButton.IsEnabled = MultipointButton.IsEnabled =
+            //    _geometryEditor.Tool is VertexTool || _geometryEditor.Tool is ReticleVertexTool;
+            //PolylineButton.IsEnabled = PolygonButton.IsEnabled = true;
+            //ToolPicker.IsEnabled = true;
+            //UniformScaleCheckBox.IsEnabled = true;
         }
 
         private Symbol GetSymbol(GeometryType geometryType)
