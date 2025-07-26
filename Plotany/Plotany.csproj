@@ -57,6 +57,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Esri.ArcGISRuntime.Maui" Version="200.7.0" />
 		<PackageReference Include="Esri.ArcGISRuntime.Toolkit.Maui" Version="200.7.0" />
 		<PackageReference Include="Esri.Calcite.Maui" Version="0.1.0-preview1" />
@@ -64,6 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="PlantList.xaml">
 	  <MauiXaml Update="ViewGarden.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
