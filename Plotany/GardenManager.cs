@@ -8,9 +8,22 @@ public class GardenManager
     private const string GardenLayerUri = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenLayers/FeatureServer/0";
     private ServiceFeatureTable _gardenFeatureTable;
 
-    public string? GardenName { get; set; }
+    private string? _gardenName;
+    public string? GardenName
+    {
+        get => _gardenName;
+        set
+        {
+            if (_gardenName != value)
+            {
+                _gardenName = value;
+                OnGardenNameChanged();
+            }
+        }
+    }
 
     public event EventHandler? GardenIdSet;
+    public event EventHandler? GardenNameChanged;
 
     public GardenManager(int? gardenId = null)
     {
@@ -18,11 +31,16 @@ public class GardenManager
         _gardenFeatureTable = new ServiceFeatureTable(new Uri(GardenLayerUri));
     }
 
-    public async Task<MapPoint?> GetGardenCenter()
+    protected virtual void OnGardenNameChanged()
+    {
+        GardenNameChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async Task<MapPoint> GetGardenCenter()
     {
         if (GardenName == null)
         {
-            return null;
+            throw new InvalidOperationException("Cannot get garden center point: garden name is not set.");
         }
 
         var query = new QueryParameters
@@ -36,7 +54,7 @@ public class GardenManager
 
         if (record?.Geometry == null)
         {
-            return null;
+            throw new InvalidOperationException("Cannot get garden center point: garden has no geometry.");
         }
         else
         {
