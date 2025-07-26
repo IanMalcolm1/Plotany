@@ -17,7 +17,7 @@ public partial class PlantList : ContentPage
         ResultsCollection.ItemsSource = resultItems;
     }
 
-    public async Task<string> queryDataAtMapPoint(string url, string field, double x, double y)
+    public async Task<string> queryDataAtMapPoint(string url, string field, double y, double x)
 	{
         var serviceFeatureTable = new ServiceFeatureTable(new Uri(url));
 
@@ -36,13 +36,12 @@ public partial class PlantList : ContentPage
 
         if (feature.Attributes.TryGetValue(field, out var value) && value != null)
         {
-            await DisplayAlert("Info", $"Found: {value}", "OK");
+            //await DisplayAlert("Info", $"Found: {value}", "OK");
             return value.ToString();
-
         }
         else
         {
-            await DisplayAlert("Info", "Not Found: no data", "OK");
+            //await DisplayAlert("Info", "Not Found: no data", "OK");
             return "Not Found: no data";
         }
 
@@ -50,7 +49,7 @@ public partial class PlantList : ContentPage
 
     private async Task GetPlantList(string soilType, string climateType)
     {
-        var table = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/Plant_data/FeatureServer/0"));
+        var table = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/Plant_data_v3/FeatureServer/0"));
         await table.LoadAsync(); // Required to access schema
 
         string whereClause = $"Esri_Symbology = '{soilType}' AND Climate = '{climateType}'";
@@ -64,9 +63,12 @@ public partial class PlantList : ContentPage
         // Query all features and include all fields
         var result = await table.QueryFeaturesAsync(queryParams, QueryFeatureFields.LoadAll);
 
+        resultItems.Add($"Your Soil Type: {soilType}");
+        resultItems.Add($"Your Climate: {climateType}");
+
         if (!result.Any())
         {
-            Console.WriteLine("No matching records found.");
+            resultItems.Add("Found no plants that can grow in your soil and climate :(");
             return;
         }
 
@@ -79,18 +81,21 @@ public partial class PlantList : ContentPage
         }
     }
 
-    private async void GetSoil(object sender, EventArgs e)
+    private async Task<string> GetSoil()
     {
-        await queryDataAtMapPoint("https://landscape11.arcgis.com/arcgis/rest/services/USA_Soils_Map_Units/featureserver/0", "esrisymbology", -118.805000, 34.027000);
+        return await queryDataAtMapPoint("https://landscape11.arcgis.com/arcgis/rest/services/USA_Soils_Map_Units/featureserver/0", "esrisymbology", 34.061032307283796, -117.20523623544922);
     }
 
-    private async void GetClimate(object sender, EventArgs e)
+    private async Task<string> GetClimate()
     {
-        await queryDataAtMapPoint("https://services7.arcgis.com/oF9CDB4lUYF7Um9q/arcgis/rest/services/NA_Climate_Zones/FeatureServer/5", "Climate", -118.805000, 34.027000);
+        return await queryDataAtMapPoint("https://services7.arcgis.com/oF9CDB4lUYF7Um9q/arcgis/rest/services/NA_Climate_Zones/FeatureServer/5", "Climate", 34.061032307283796, -117.20523623544922);
     }
 
     private async void GetPlant(object sender, EventArgs e)
     {
-        await GetPlantList("Aridisols", "Hot-Summer Mediterranean Climate");
+        string userSoilType = await GetSoil();
+        string userClimate = await GetClimate();
+        await GetPlantList(userSoilType, userClimate);
+        //await GetPlantList("Entisols", "Hot-Summer Mediterranean Climate");
     }
 }

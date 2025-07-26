@@ -12,13 +12,6 @@
                Padding="20"
                LineBreakMode="WordWrap" />
 
-            <Button Text="Query For Soil"
-                Clicked="GetSoil" />
-
-            <Button Text="Query For Climate"
-                Clicked="GetClimate" />
-
-
             <Button Text="Get Plants"
                 Clicked="GetPlant" />
 
