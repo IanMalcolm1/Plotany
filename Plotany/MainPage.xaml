@@ -7,7 +7,11 @@
              x:DataType="local:MapViewModel"
              >
 
-    <Grid>
-         <esri:MapView x:Name="mapView" Map="{Binding Map}" />
-    </Grid>
+    <ContentPage.Resources>
+        <local:MapViewModel x:Key="MapViewModel" />
+    </ContentPage.Resources>
+
+
+    <esri:MapView x:Name="MainMapView" Map="{Binding Map, Source={StaticResource MapViewModel}}" />
+    
 </ContentPage>
