@@ -1,4 +1,8 @@
-﻿namespace Plotany
+﻿using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Mapping;
+
+namespace Plotany
 {
     public partial class MainPage : ContentPage
     {
@@ -11,6 +15,8 @@
             _viewModel = viewModel;
             this.BindingContext = _viewModel;
         }
+
+        
     }
 
 }
