@@ -7,9 +7,19 @@
     Shell.FlyoutBehavior="Disabled"
     Title="Plotany">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <Tab Title="Plots" Icon="plots_icon.png">
+            <ShellContent
+                Title="Home 1"
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="PlotsPage" />
+        </Tab>
+        <Tab Title="Plots 2">
+            <ShellContent
+                Title="Home 2"
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="MainPage" />
+        </Tab>
+    </TabBar>
 
 </Shell>
