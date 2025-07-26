@@ -66,9 +66,11 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="PlantList.xaml">
-	  <MauiXaml Update="ViewGarden.xaml">
-	    <Generator>MSBuild:Compile</Generator>
+		  <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+		<MauiXaml Update="ViewGarden.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 	
 </Project>

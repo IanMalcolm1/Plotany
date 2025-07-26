@@ -10,11 +10,11 @@ namespace Plotany;
 
 public partial class PlantList : ContentPage
 {
-    private ObservableCollection<string> resultItems = new ObservableCollection<string>();
+    private ObservableCollection<string> plantCollectionItems = new ObservableCollection<string>();
     public PlantList()
 	{
 		InitializeComponent();
-        ResultsCollection.ItemsSource = resultItems;
+        PlantCollection.ItemsSource = plantCollectionItems;
     }
 
     public async Task<string> queryDataAtMapPoint(string url, string field, double y, double x)
@@ -63,21 +63,28 @@ public partial class PlantList : ContentPage
         // Query all features and include all fields
         var result = await table.QueryFeaturesAsync(queryParams, QueryFeatureFields.LoadAll);
 
-        resultItems.Add($"Your Soil Type: {soilType}");
-        resultItems.Add($"Your Climate: {climateType}");
+        soilInfo.Text = ($"We found this soil in your garden:\n {soilType}");
+        soilBox.IsVisible = true;
+
+        climateInfo.Text = ($"You live in this climate:\n {climateType}");
+        climateBox.IsVisible = true;
 
         if (!result.Any())
         {
-            resultItems.Add("Found no plants that can grow in your soil and climate :(");
+            plantCollectionItems.Add("Found no plants that can grow in your soil and climate :(");
             return;
+        }
+        else
+        {
+            plantBox.IsVisible = true;
         }
 
         foreach (var feature in result)
         {
             string ID = feature.Attributes.TryGetValue("ID", out var mk) ? mk?.ToString() ?? "N/A" : "N/A";
             string commonName = feature.Attributes.TryGetValue("Common_Name", out var cn) ? cn?.ToString() ?? "N/A" : "N/A";
-            string formatted = $"ID: {ID}, Common Name: {commonName}";
-            resultItems.Add(formatted);
+            string formatted = commonName;
+            plantCollectionItems.Add(formatted);
         }
     }
 
@@ -93,6 +100,7 @@ public partial class PlantList : ContentPage
 
     private async void GetPlant(object sender, EventArgs e)
     {
+        startButton.IsVisible = false;
         string userSoilType = await GetSoil();
         string userClimate = await GetClimate();
         await GetPlantList(userSoilType, userClimate);
