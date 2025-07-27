@@ -33,7 +33,7 @@
     <Grid x:Name="MainPageContextRoot" RowDefinitions="Auto, Auto">
         <Grid x:Name="MainScreen"
               IsVisible="{Binding NeedGardenName, Converter={StaticResource BoolInvertConverter}}"
-              IsEnabled="{Binding NeedGardenName, Converter={StaticResource BoolInvertConverter}}}"
+              IsEnabled="{Binding NeedGardenName, Converter={StaticResource BoolInvertConverter}}"
               RowDefinitions="2*,3*,2*,2*"
               ColumnDefinitions="*,*">
             <StackLayout Grid.ColumnSpan="2" x:Name="WeatherNotifications">
