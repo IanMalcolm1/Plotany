@@ -40,7 +40,6 @@ namespace Plotany
         {
             InitializeComponent();
             InitializeAsync().GetAwaiter().GetResult();
-            //LoadSavedDrawingsAsync();
             BindingContext = this;
 
             _gardenManager = gardenManager;
@@ -48,8 +47,13 @@ namespace Plotany
             {
                 Shell.SetTabBarIsVisible(this, false);
             }
-            _gardenManager.GardenNameChanged += (s, e) => Shell.SetTabBarIsVisible(this, true);
+            _gardenManager.GardenNameChanged += async (s, e) =>
+            {
+                await LoadLayers();
+                Shell.SetTabBarIsVisible(this, true);
+            };
         }
+
         public string GardenNameInput
         {
             get => _gardenNameInput;
@@ -136,7 +140,11 @@ namespace Plotany
                     return;
                 }
 
-                await LoadFromArcGISOnlineAsync();
+                await LoadMap();
+                if (_gardenManager.GardenName != null)
+                {
+                    await LoadLayers();
+                }
 
                 _seedBagLayer = new FeatureLayer(_featureTable);
             }
@@ -242,11 +250,15 @@ namespace Plotany
 
                 await featureTable.AddFeatureAsync(feature);
                 await featureTable.ApplyEditsAsync();
-                await LoadFromArcGISOnlineAsync();
                 if (_gardenManager.GardenName == null)
                 {
-                    await _gardenManager.SetGardenName(gardenName);
+                    await _gardenManager.SetGardenName(gardenName); //this will trigger LoadLayers() elsewhere
+                    await Task.Delay(2000);
                     await Shell.Current.GoToAsync("///PlantList");
+                }
+                else
+                {
+                    await LoadLayers();
                 }
             }
             catch (Exception ex)
@@ -255,32 +267,10 @@ namespace Plotany
             }
         }
 
-        private async void LoadSavedDrawingsAsync()
-        {
-            await LoadFromArcGISOnlineAsync();
-        }
-
-        private async Task LoadFromArcGISOnlineAsync()
+        private async Task LoadLayers()
         {
             try
             {
-                if (GardenMapView.Map == null)
-                {
-                    // await DisplayAlert("Load Error", "Map not initialized. Check webmap ID or connection.", "OK");
-                    return;
-                }
-                await GardenMapView.Map.LoadAsync();
-
-                if (_gardenOverlay == null)
-                {
-                    _gardenOverlay = new GraphicsOverlay();
-                    GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
-                }
-
-                _gardenOverlay.Graphics.Clear();
-                _gardenOverlay.LabelDefinitions.Clear();
-                GardenMapView.Map.OperationalLayers.Clear();
-
                 if (_gardenLayer == null || _plantLayer == null)
                 {
                     // await DisplayAlert("Load Error", "Garden or Plant layer not initialized.", "OK");
@@ -370,39 +360,43 @@ namespace Plotany
                     extent.YMax + extent.Height * 0.25,
                     extent.SpatialReference);
                 await GardenMapView.SetViewpointGeometryAsync(expandedExtent, 50);
-
-                //var gardenLabelDefinition = new LabelDefinition(
-                //    new SimpleLabelExpression("[Name]"),
-                //    new TextSymbol
-                //    {
-                //        Color = System.Drawing.Color.White,
-                //        Size = 12,
-                //        HaloColor = System.Drawing.Color.Black,
-                //        HaloWidth = 2
-                //    })
-                //{
-                //    LabelOverlapStrategy = LabelOverlapStrategy.Automatic
-                //};
-                //var plantLabelDefinition = new LabelDefinition(
-                //    new SimpleLabelExpression("[PlantName]"),
-                //    new TextSymbol
-                //    {
-                //        Color = System.Drawing.Color.Yellow,
-                //        Size = 10,
-                //        HaloColor = System.Drawing.Color.Black,
-                //        HaloWidth = 1
-                //    })
-                //{
-                //    LabelOverlapStrategy = LabelOverlapStrategy.Automatic
-                //};
-                //_gardenOverlay.LabelDefinitions.Add(gardenLabelDefinition);
-                //_gardenOverlay.LabelDefinitions.Add(plantLabelDefinition);
-                //_gardenOverlay.LabelsEnabled = true;
-
             }
             catch (Exception ex)
             {
-                // await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
+                await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task LoadMap()
+        {
+            try
+            {
+                if (GardenMapView.Map == null)
+                {
+                    // await DisplayAlert("Load Error", "Map not initialized. Check webmap ID or connection.", "OK");
+                    return;
+                }
+                await GardenMapView.Map.LoadAsync();
+
+                if (_gardenOverlay == null)
+                {
+                    _gardenOverlay = new GraphicsOverlay();
+                    GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
+                }
+
+                _gardenOverlay.Graphics.Clear();
+                _gardenOverlay.LabelDefinitions.Clear();
+                GardenMapView.Map.OperationalLayers.Clear();
+
+                if (_gardenLayer == null || _plantLayer == null)
+                {
+                    // await DisplayAlert("Load Error", "Garden or Plant layer not initialized.", "OK");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Load Error", $"Failed to load map: {ex.Message}", "OK");
             }
         }
 
@@ -567,6 +561,11 @@ namespace Plotany
 
         private void PolygonButton_Click(object sender, EventArgs e)
         {
+            if (_geometryEditor == null)
+            {
+                return;
+            }
+
             if (!_geometryEditor.IsStarted)
             {
                 _selectedFeature = null;
