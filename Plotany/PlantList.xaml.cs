@@ -7,7 +7,7 @@ namespace Plotany;
 
 public partial class PlantList : ContentPage
 {
-    private const string PLANTS_TABLE_URL = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/Plant_data/FeatureServer/0";
+    private const string PLANTS_TABLE_URL = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/Plant_data_v3/FeatureServer/0";
     private const string MY_SEEDS_TABLE_URL = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenPlants/FeatureServer/0";
     private const string SOIL_LAYER_URL = "https://landscape11.arcgis.com/arcgis/rest/services/USA_Soils_Map_Units/featureserver/0";
     private const string CLIMATE_LAYER_URL = "https://services7.arcgis.com/oF9CDB4lUYF7Um9q/arcgis/rest/services/NA_Climate_Zones/FeatureServer/5";

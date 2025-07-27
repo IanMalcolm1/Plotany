@@ -645,7 +645,7 @@ namespace Plotany
         private async void GardenMapView_GeoViewTapped(object sender, Esri.ArcGISRuntime.Maui.GeoViewInputEventArgs e)
         {
             if (_geometryEditor.IsStarted) return;
-
+            PlantListView.IsVisible = false;
             try
             {
                 if (_plantLayer == null || _plantLayer.FeatureTable == null)
