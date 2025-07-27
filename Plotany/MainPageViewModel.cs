@@ -147,4 +147,9 @@ public partial class MainPageViewModel : ObservableObject
 
         return forecasts;
     }
+    [RelayCommand]
+    private async Task NavigateMakeGarden()
+    {
+        await Shell.Current.GoToAsync("///ViewGarden");
+    }
 }
