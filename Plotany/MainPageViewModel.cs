@@ -141,6 +141,7 @@ public partial class MainPageViewModel : ObservableObject
 
         return forecasts;
     }
+
     [RelayCommand]
     private async Task NavigateMakeGarden()
     {

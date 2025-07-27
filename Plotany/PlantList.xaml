@@ -14,7 +14,8 @@
     </Shell.TitleView>
 
     <StackLayout>
-        <Button 
+        <!--
+            <Button 
                 x:Name="startButton"
                 TextColor="#1F2F2E"
                 Text="Start here!" 
@@ -25,6 +26,7 @@
                 HeightRequest="100"
                 Margin="50,0,50,0"
                 Clicked="GetPlant" />
+            -->
 
         <Frame x:Name="soilBox"
                BackgroundColor="#CDE3D0"
