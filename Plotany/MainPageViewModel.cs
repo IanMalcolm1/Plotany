@@ -25,6 +25,8 @@ public partial class MainPageViewModel : ObservableObject
     [ObservableProperty] private string _gardenNameInput = string.Empty;
     [ObservableProperty] private string _weatherWarning = string.Empty;
 
+    [ObservableProperty] private List<WeatherForecast>? _weatherForecasts = null;
+
     public MainPageViewModel(GardenManager gardenManager)
     {
         _gardenManager = gardenManager;
@@ -61,6 +63,7 @@ public partial class MainPageViewModel : ObservableObject
         {
             NeedGardenName = false;
             var forecast = await Get7DayWeatherAsync(await _gardenManager.GetGardenCenter());
+            WeatherForecasts = forecast;
 
             List<DateTime> hotDays = new List<DateTime>();
             List<DateTime> coldDays = new List<DateTime>();
@@ -143,8 +146,20 @@ public partial class MainPageViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task NavigateMakeGarden()
+    private async Task NavToViewGarden()
     {
         await Shell.Current.GoToAsync("///ViewGarden");
+    }
+
+    [RelayCommand]
+    private async Task NavToPlantsList()
+    {
+        await Shell.Current.GoToAsync("///PlantList");
+    }
+
+    [RelayCommand]
+    private async Task NavToPests()
+    {
+        await Shell.Current.GoToAsync("///QuarantinesPage");
     }
 }

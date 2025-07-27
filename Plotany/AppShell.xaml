@@ -12,19 +12,20 @@
             <ShellContent ContentTemplate="{DataTemplate local:MainPage}"
                           Route="HomePage" />
         </Tab>
+        
+        <Tab Title="Garden">
+            <ShellContent ContentTemplate="{DataTemplate local:ViewGarden}"
+                          Route="ViewGarden" />
+        </Tab>
 
         <Tab Title="Plants">
             <ShellContent ContentTemplate="{DataTemplate local:PlantList}"
                           Route="PlantList" />
         </Tab>
 
-        <Tab Title="Community" Icon="nothing.png">
+        <Tab Title="Pests" Icon="nothing.png">
             <ShellContent ContentTemplate="{DataTemplate local:QuarantinesTabView}"
                           Route="QuarantinesPage" />
-        </Tab>
-        <Tab Title="View Garden">
-            <ShellContent ContentTemplate="{DataTemplate local:ViewGarden}"
-                          Route="ViewGarden" />
         </Tab>
     </TabBar>
 

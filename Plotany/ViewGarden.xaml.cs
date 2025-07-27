@@ -43,7 +43,6 @@ namespace Plotany
             //LoadSavedDrawingsAsync();
             BindingContext = this;
 
-
             _gardenManager = gardenManager;
             if (_gardenManager.GardenName == null)
             {
@@ -84,42 +83,27 @@ namespace Plotany
         }
 
         private async void Initialize()
-
         {
-
             try
-
             {
-
                 // Initialize graphics overlay
-
                 _gardenOverlay = new GraphicsOverlay();
-
                 GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
 
                 // Initialize map with webmap
-
                 string webmapId = "5319936041b145f083e58144986c91d5";
-
                 var portal = await ArcGISPortal.CreateAsync(new Uri("https://www.arcgis.com"));
-
                 var portalItem = await PortalItem.CreateAsync(portal, webmapId);
-
                 var map = new Esri.ArcGISRuntime.Mapping.Map(portalItem);
-
                 await map.LoadAsync();
 
                 if (map.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
-
                 {
-
-                   
                     //await DisplayAlert("Load Error", "Failed to load webmap. Check webmap ID or connection.", "OK");
-
                     return;
-
                 }
-                _currentBasemapStyle = BasemapStyle.ArcGISLightGray;
+
+                _currentBasemapStyle = BasemapStyle.ArcGISImageryStandard;
                 GardenMapView.Map = map;
 
                 await Task.Delay(1000);
@@ -131,72 +115,42 @@ namespace Plotany
                 GardenMapView.GeometryEditor = _geometryEditor;
 
                 _toolDictionary = new Dictionary<string, GeometryEditorTool>
-
-{
-
-{ "Vertex", new VertexTool() },
-
-{ "Freehand", new FreehandTool() },
-
-{ "ReticleVertex", new ReticleVertexTool() }
-
-};
+                {
+                    { "Vertex", new VertexTool() },
+                    { "Freehand", new FreehandTool() },
+                    { "ReticleVertex", new ReticleVertexTool() }
+                };
 
                 _geometryButtons = new Dictionary<GeometryType, Button>
-
-{
-
-{ GeometryType.Point, PointButton },
-
-{ GeometryType.Polygon, PolygonButton }
-
-};
+                {
+                    { GeometryType.Point, PointButton },
+                    { GeometryType.Polygon, PolygonButton }
+                };
 
                 // Find garden and plant layers in the webmap
-
                 _gardenLayer = map.OperationalLayers.FirstOrDefault(l => l.Name.Contains("Garden")) as FeatureLayer;
-
                 _plantLayer = map.OperationalLayers.FirstOrDefault(l => l.Name.Contains("PlantedPlants")) as FeatureLayer;
-
                 if (_gardenLayer == null || _plantLayer == null)
-
                 {
-
-                   // await DisplayAlert("Load Error", "Garden or Plant layer not found in webmap.", "OK");
-
-
+                    // await DisplayAlert("Load Error", "Garden or Plant layer not found in webmap.", "OK");
                     return;
-
                 }
 
                 await LoadFromArcGISOnlineAsync();
 
                 _seedBagLayer = new FeatureLayer(_featureTable);
-
-
             }
-
             catch (Exception ex)
-
             {
-
-               // await DisplayAlert("Initialization Error", $"Failed to initialize: {ex.Message}", "OK");
-
+                // await DisplayAlert("Initialization Error", $"Failed to initialize: {ex.Message}", "OK");
 
                 // Ensure _gardenOverlay is initialized even on failure
-
                 if (_gardenOverlay == null)
-
                 {
-
                     _gardenOverlay = new GraphicsOverlay();
-
                     GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
-
                 }
-
             }
-
         }
 
         //private async void OnSetupGardenClicked(object sender, EventArgs e)
@@ -259,17 +213,17 @@ namespace Plotany
                 }
                 if (geometry == null || geometry.IsEmpty)
                 {
-                   // await DisplayAlert("Error", "Invalid or empty geometry.", "OK");
+                    // await DisplayAlert("Error", "Invalid or empty geometry.", "OK");
                     return;
                 }
-                
+
                 var featureTable = geometry.GeometryType == GeometryType.Point
                     ? _plantLayer?.FeatureTable as ServiceFeatureTable
                     : _gardenLayer?.FeatureTable as ServiceFeatureTable;
 
                 if (featureTable == null)
                 {
-                   // await DisplayAlert("Error", "Feature table is not initialized.", "OK");
+                    // await DisplayAlert("Error", "Feature table is not initialized.", "OK");
                     return;
                 }
 
@@ -297,7 +251,7 @@ namespace Plotany
             }
             catch (Exception ex)
             {
-               // await DisplayAlert("Save Error", $"Failed to save feature: {ex.Message}", "OK");
+                // await DisplayAlert("Save Error", $"Failed to save feature: {ex.Message}", "OK");
             }
         }
 
@@ -312,7 +266,7 @@ namespace Plotany
             {
                 if (GardenMapView.Map == null)
                 {
-                   // await DisplayAlert("Load Error", "Map not initialized. Check webmap ID or connection.", "OK");
+                    // await DisplayAlert("Load Error", "Map not initialized. Check webmap ID or connection.", "OK");
                     return;
                 }
                 await GardenMapView.Map.LoadAsync();
@@ -329,7 +283,7 @@ namespace Plotany
 
                 if (_gardenLayer == null || _plantLayer == null)
                 {
-                   // await DisplayAlert("Load Error", "Garden or Plant layer not initialized.", "OK");
+                    // await DisplayAlert("Load Error", "Garden or Plant layer not initialized.", "OK");
                     return;
                 }
 
@@ -337,7 +291,7 @@ namespace Plotany
                 if (_gardenLayer.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded ||
                     _plantLayer.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
                 {
-                   // await DisplayAlert("Load Error", "Failed to load layers. Check API key or URL.", "OK");
+                    // await DisplayAlert("Load Error", "Failed to load layers. Check API key or URL.", "OK");
                     return;
                 }
 
@@ -352,7 +306,7 @@ namespace Plotany
                 {
                     WhereClause = $"Name = '{_gardenManager.GardenName}'",
                     ReturnGeometry = true,
-                    
+
                 };
                 var gardenResult = await gardenTable.QueryFeaturesAsync(gardenQuery);
                 if (!gardenResult.Any())
@@ -366,7 +320,7 @@ namespace Plotany
 
                 foreach (var gardenFeature in gardenResult)
                 {
-                   
+
                     var gardenSymbol = _gardenLayer.Renderer?.GetSymbol(gardenFeature) ??
                         new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, System.Drawing.Color.FromArgb(100, 0, 128, 0),
                             new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.DarkGreen, 2));
@@ -386,7 +340,7 @@ namespace Plotany
                 {
                     WhereClause = $"Name = '{_gardenManager.GardenName}'",
                     ReturnGeometry = true,
-                    
+
                 };
                 var plantResult = await plantTable.QueryFeaturesAsync(plantQuery);
                 foreach (var plantFeature in plantResult)
@@ -448,7 +402,7 @@ namespace Plotany
             }
             catch (Exception ex)
             {
-               // await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
+                // await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
             }
         }
 
@@ -473,7 +427,7 @@ namespace Plotany
             }
             catch (Exception ex)
             {
-               // await DisplayAlert("Save Error", $"Failed to save to ArcGIS Online: {ex.Message}", "OK");
+                // await DisplayAlert("Save Error", $"Failed to save to ArcGIS Online: {ex.Message}", "OK");
             }
         }
 
@@ -499,7 +453,7 @@ namespace Plotany
             }
             catch (Exception ex)
             {
-               // await DisplayAlert("Location Error", $"Failed to start location tracking: {ex.Message}", "OK");
+                // await DisplayAlert("Location Error", $"Failed to start location tracking: {ex.Message}", "OK");
             }
             finally
             {
