@@ -107,7 +107,7 @@
                 </Border.GestureRecognizers>
                 <StackLayout>
                     <Label Text="Add a Plant" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="0,0,0,5"/>
-                    <Image Source="cancel.png"/>
+                    <Image Source="addplant2.png"/>
                 </StackLayout>
             </Border>
             <Border Grid.Row="2" Grid.Column="1" Background="{StaticResource Container}"
@@ -121,7 +121,7 @@
                 </Border.GestureRecognizers>
                 <StackLayout>
                     <Label Text="Report Pests" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="0,0,0,5"/>
-                    <Image Source="cancel.png"/>
+                    <Image Source="pests.png"/>
                 </StackLayout>
             </Border>
         </Grid>
