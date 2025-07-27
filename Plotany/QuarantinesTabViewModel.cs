@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Portal;
 
 using Map = Esri.ArcGISRuntime.Mapping.Map;
@@ -11,9 +12,12 @@ public partial class QuarantinesTabViewModel : ObservableObject
     [ObservableProperty]
     private Map? _quarantineMap;
 
-    public QuarantinesTabViewModel()
+    private readonly GardenManager _gardenManager;
+
+    public QuarantinesTabViewModel(GardenManager gardenManager)
     {
         _ = SetUpMap();
+        _gardenManager = gardenManager;
     }
 
     private async Task SetUpMap()
@@ -22,6 +26,21 @@ public partial class QuarantinesTabViewModel : ObservableObject
         PortalItem mapItem = await PortalItem.CreateAsync(portal, "0d086c72f8bb49429fc8be8b42fc5b92");
 
         QuarantineMap = new Map(mapItem);
+        await QuarantineMap.LoadAsync();
+
+        if (_gardenManager.GardenName != null)
+        {
+            var gardenLayer = QuarantineMap.OperationalLayers.FirstOrDefault((a) => a.Name == "My Garden") as FeatureLayer;
+            gardenLayer.DefinitionExpression = $"Name='{_gardenManager.GardenName}'";
+        }
+        else
+        {
+            _gardenManager.GardenNameChanged += (sender, args) =>
+            {
+                var gardenLayer = QuarantineMap.OperationalLayers.FirstOrDefault((a) => a.Name == "My Garden") as FeatureLayer;
+                gardenLayer.DefinitionExpression = $"Name='{_gardenManager.GardenName}'";
+            };
+        }
     }
 
     [RelayCommand]
