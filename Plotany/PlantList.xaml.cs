@@ -1,8 +1,10 @@
+using Android.Gms.Common;
 using AndroidX.Camera.Video;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
 using System.Collections.ObjectModel;
+using System.Net.Mail;
 using System.Text;
 using static Android.Renderscripts.Script;
 
@@ -11,17 +13,20 @@ namespace Plotany;
 public partial class PlantList : ContentPage
 {
     private ObservableCollection<string> plantCollectionItems = new ObservableCollection<string>();
+
+
     public PlantList()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         PlantCollection.ItemsSource = plantCollectionItems;
+
     }
 
     public async Task<string> queryDataAtMapPoint(string url, string field, double y, double x)
-	{
+    {
         var serviceFeatureTable = new ServiceFeatureTable(new Uri(url));
 
-        var mapPoint = new MapPoint(x, y, SpatialReferences.Wgs84); 
+        var mapPoint = new MapPoint(x, y, SpatialReferences.Wgs84);
 
         // Create query parameters
         var queryParams = new QueryParameters
@@ -49,7 +54,8 @@ public partial class PlantList : ContentPage
 
     private async Task GetPlantList(string soilType, string climateType)
     {
-        var table = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/Plant_data_v3/FeatureServer/0"));
+        var table = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/Plant_data/FeatureServer/0"));
+
         await table.LoadAsync(); // Required to access schema
 
         string whereClause = $"Esri_Symbology = '{soilType}' AND Climate = '{climateType}'";
@@ -105,5 +111,28 @@ public partial class PlantList : ContentPage
         string userClimate = await GetClimate();
         await GetPlantList(userSoilType, userClimate);
         //await GetPlantList("Entisols", "Hot-Summer Mediterranean Climate");
+    }
+
+    private async void AddPlantToGarden(object sender, EventArgs e)
+    {
+        var table = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenPlants/FeatureServer/0"));
+        await table.LoadAsync();
+
+        var newFeature = table.CreateFeature();
+        newFeature.Attributes["garden_name"] = "My Garden";
+        newFeature.Attributes["plant_name"] = "Aloe Vera";
+
+        await table.AddFeatureAsync(newFeature);
+
+        var editResult = await table.ApplyEditsAsync();
+
+        if (editResult != null && editResult.Count > 0 && editResult[0].CompletedWithErrors)
+        {
+            Console.WriteLine($"Failed to add feature: {editResult[0].Error.Message}");
+        }
+        else
+        {
+            Console.WriteLine("Feature added successfully.");
+        }
     }
 }

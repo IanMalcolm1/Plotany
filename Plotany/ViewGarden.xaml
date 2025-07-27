@@ -10,33 +10,34 @@
             <Setter Property="BackgroundColor" Value="#F1F8F6" />
         </Style>
     </ContentPage.Resources>
-    <Grid RowDefinitions="*,Auto">
-        <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" />
-        <StackLayout x:Name="EmptyStatePanel" Grid.Row="0" HorizontalOptions="Center" IsVisible="False">
-            <Label Text="You haven't set up your garden yet." FontSize="Medium" />
-            <Button Text="Setup My Garden" Clicked="OnSetupGardenClicked" />
-        </StackLayout>
-        <!--<Button x:Name="ResetMapButton" Grid.Row="0" Text="Reset Map" Clicked="ResetMapButton_Click" 
+    <Grid>
+        <Grid RowDefinitions="*,Auto">
+            <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" />
+            <StackLayout x:Name="EmptyStatePanel" Grid.Row="0" HorizontalOptions="Center" IsVisible="False">
+                <Label Text="You haven't set up your garden yet." FontSize="Medium" />
+                <Button Text="Setup My Garden" Clicked="OnSetupGardenClicked" />
+            </StackLayout>
+            <!--<Button x:Name="ResetMapButton" Grid.Row="0" Text="Reset Map" Clicked="ResetMapButton_Click" 
                 HorizontalOptions="End" VerticalOptions="Start" Margin="10" />-->
-        <Grid Margin="5,5,5,5" ColumnSpacing="5" HorizontalOptions="End" RowDefinitions="auto,*,auto" RowSpacing="5" VerticalOptions="Start">
-            
-            <ScrollView x:Name="GeometryEditorPanel" Grid.Row="2" IsVisible="true" HorizontalOptions="End">
-                <Grid RowDefinitions="auto, auto, auto, auto, auto, auto, auto, auto" RowSpacing="5" VerticalOptions="Start" HorizontalOptions="End">
-                    <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PointButton" Grid.Row="0" Clicked="PointButton_Click" ImageSource="addplant.png" />
-                    <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PolygonButton" Grid.Row="1" Clicked="PolygonButton_Click" ImageSource="addfence.png"/>
-                    <Button Grid.Row="2"
+            <Grid Margin="5,5,5,5" ColumnSpacing="5" HorizontalOptions="End" RowDefinitions="auto,*,auto" RowSpacing="5" VerticalOptions="Start">
+
+                <ScrollView x:Name="GeometryEditorPanel" Grid.Row="2" IsVisible="true" HorizontalOptions="End">
+                    <Grid RowDefinitions="auto, auto, auto, auto, auto, auto, auto, auto" RowSpacing="5" VerticalOptions="Start" HorizontalOptions="End">
+                        <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PointButton" Grid.Row="0" Clicked="PointButton_Click" ImageSource="addplant.png" />
+                        <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PolygonButton" Grid.Row="1" Clicked="PolygonButton_Click" ImageSource="addfence.png"/>
+                        <Button Grid.Row="2"
                             Clicked="UndoButton_Click"
                             IsVisible="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}"
                             Style="{StaticResource ToolButtonStyle}"
                             ImageSource="undo.png"/>
 
-                    <Button Grid.Row="3"
+                        <Button Grid.Row="3"
                             Clicked="RedoButton_Click"
                             IsVisible="{Binding GeometryEditor.CanRedo, Source={x:Reference GardenMapView}}"
                             Style="{StaticResource ToolButtonStyle}"
                             ImageSource="redo.png"/>
 
-                    <Button Grid.Row="4"
+                        <Button Grid.Row="4"
                             x:Name="SaveButton"
                             Clicked="SaveButton_Click"
                             IsVisible="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}"
@@ -44,14 +45,29 @@
                            
                             ImageSource="save.png"/>
 
-                    <Button x:Name="DiscardButton"
+                        <Button x:Name="DiscardButton"
                             Grid.Row="5"
                             Clicked="DiscardButton_Click" HorizontalOptions="Fill"
                             IsVisible="{Binding GeometryEditor.IsStarted, Source={x:Reference GardenMapView}}"
                             Style="{StaticResource ToolButtonStyle}" ImageSource="cancel.png"/>
 
-                </Grid>
-            </ScrollView>
+                    </Grid>
+                </ScrollView>
+            </Grid>
         </Grid>
+
+
+        <StackLayout VerticalOptions="Center" IsVisible="{Binding ShowGardenNameInput}" IsEnabled="{Binding ShowGardenNameInput}">
+            <Border Background="{StaticResource Background}" Margin="20,0,20,0" >
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <StackLayout>
+                    <Label Text="Pick a name for your garden" HorizontalTextAlignment="Center"/>
+                    <Entry Text="{Binding GardenNameInput}" />
+                    <Button Text="Create" Clicked="SaveButton_Click"/>
+                </StackLayout>
+            </Border>
+        </StackLayout>
     </Grid>
 </ContentPage>

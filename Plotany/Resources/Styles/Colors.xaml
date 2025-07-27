@@ -6,6 +6,12 @@
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
+    <Color x:Key="Container">#CDE3D0</Color>
+    <Color x:Key="Background">#F1F8F6</Color>
+    <Color x:Key="Text">#1F2F2E</Color>
+    <Color x:Key="Buttons">#A3D9B1</Color>
+    <Color x:Key="Icons">#4A7C59</Color>
+
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>

@@ -6,14 +6,11 @@ using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.Tasks.Geocoding;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Editing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Plotany
 {
-    public partial class ViewGarden : ContentPage
+    public partial class ViewGarden : ContentPage, INotifyPropertyChanged
     {
         private GeometryEditor _geometryEditor;
         private Graphic _selectedGraphic;
@@ -24,13 +21,22 @@ namespace Plotany
         private SimpleMarkerSymbol _pointSymbol, _multiPointSymbol;
         private Dictionary<GeometryType, Button> _geometryButtons;
         private Dictionary<string, GeometryEditorTool> _toolDictionary;
-        private string gardenName = "'sam'";
+        private string _gardenNameInput = String.Empty;
+        private bool _showGardenNameInput = false;
 
-        public ViewGarden()
+        private GardenManager _gardenManager;
+
+        public ViewGarden(GardenManager gardenManager)
         {
             InitializeComponent();
             Initialize();
             LoadSavedDrawingsAsync();
+
+            BindingContext = this;
+
+            Shell.SetTabBarIsVisible(this, false);
+            _gardenManager = gardenManager;
+            _gardenManager.GardenNameChanged += (s, e) => Shell.SetTabBarIsVisible(this, true);
         }
 
         private void Initialize()
@@ -58,6 +64,32 @@ namespace Plotany
                 { GeometryType.Point, PointButton },
                 { GeometryType.Polygon, PolygonButton }
             };
+        }
+
+        public string GardenNameInput
+        {
+            get => _gardenNameInput;
+            set
+            {
+                if (_gardenNameInput != value)
+                {
+                    _gardenNameInput = value;
+                    OnPropertyChanged(nameof(GardenNameInput));
+                }
+            }
+        }
+
+        public bool ShowGardenNameInput
+        {
+            get => _showGardenNameInput;
+            set
+            {
+                if (_showGardenNameInput != value)
+                {
+                    _showGardenNameInput = value;
+                    OnPropertyChanged(nameof(ShowGardenNameInput));
+                }
+            }
         }
 
         private async void OnSetupGardenClicked(object sender, EventArgs e)
@@ -91,6 +123,21 @@ namespace Plotany
 
         private async void SaveButton_Click(object sender, EventArgs e)
         {
+            string? gardenName = _gardenManager.GardenName;
+            if (gardenName == null)
+            {
+                if (string.IsNullOrEmpty(GardenNameInput))
+                {
+                    ShowGardenNameInput = true;
+                    return;
+                }
+                else
+                {
+                    gardenName = GardenNameInput;
+                    ShowGardenNameInput = false;
+                }
+            }
+
             try
             {
                 var geometry = _geometryEditor.Stop();
@@ -111,8 +158,16 @@ namespace Plotany
                 {
                     await SaveToArcGISOnlineAsync(geometry, gardenName, "");
                     await LoadFromArcGISOnlineAsync();
+
                     await DisplayAlert("Success", "Polygon saved successfully!", "OK");
                     ResetFromEditingSession();
+                }
+
+
+                if (_gardenManager.GardenName == null)
+                {
+                    await _gardenManager.SetGardenName(gardenName);
+                    await Shell.Current.GoToAsync("///PlantList");
                 }
             }
             catch (Exception ex)
@@ -217,6 +272,8 @@ namespace Plotany
 
         private async Task SaveToArcGISOnlineAsync(Geometry geometry, string gardenName, string plantName)
         {
+
+
             string featureLayerUrl = geometry.GeometryType == GeometryType.Polygon
                 ? "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenLayers/FeatureServer/0"
                 : "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/PlantedPlants/FeatureServer/0";
