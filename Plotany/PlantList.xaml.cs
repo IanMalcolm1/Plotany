@@ -134,10 +134,12 @@ public partial class PlantList : ContentPage
         await table.LoadAsync();
         var newFeature = table.CreateFeature();
         var clickedButton = (Button)sender;
+        string gardenName = "My Garden2";
+;
 
         var queryParams = new QueryParameters
         {
-            WhereClause = $"plant_database_id = {plantDict[clickedButton.Text]}", // use no quotes if ID is a number
+            WhereClause = $"garden_name = '{gardenName}' AND plant_database_id = {plantDict[clickedButton.Text]}", // use no quotes if ID is a number
             MaxFeatures = 1
         };
         var results = await table.QueryFeaturesAsync(queryParams, QueryFeatureFields.LoadAll);
@@ -149,19 +151,16 @@ public partial class PlantList : ContentPage
         }
         else
         {
-            newFeature.Attributes["garden_name"] = "My Garden";
+            newFeature.Attributes["garden_name"] = gardenName;
             newFeature.Attributes["plant_name"] = clickedButton.Text;
             newFeature.Attributes["plant_database_id"] = plantDict[clickedButton.Text];
             await table.AddFeatureAsync(newFeature);
+            await table.ApplyEditsAsync();
 
             // Save updated text to preferences
             Preferences.Set("ButtonText", clickedButton.Text);
             await DisplayAlert("Success", "Plant added to your seed bank!", "OK");
         }
-
-
-
-
 
     }
 }
