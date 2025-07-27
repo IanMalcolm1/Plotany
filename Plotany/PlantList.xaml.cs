@@ -97,14 +97,45 @@ public partial class PlantList : ContentPage
             plantBox.IsVisible = true;
         }
 
+        //query my seeds table to see if the user already has these plants
+        // if they do add a checkmark to the button text
+        var mySeedsTable = new ServiceFeatureTable(new Uri(MY_SEEDS_TABLE_URL));
+        await mySeedsTable.LoadAsync();
+        var mySeedsQuery = new QueryParameters
+        {
+            WhereClause = $"garden_name = '{_gardenManager.GardenName}'",
+            ReturnGeometry = false,
+        };
+
+        var mySeedsResult = await mySeedsTable.QueryFeaturesAsync(mySeedsQuery, QueryFeatureFields.LoadAll);
+
+        // ✅ Build a HashSet of plant IDs the user already has
+        var ownedPlantIds = new HashSet<string>();
+        foreach (var seed in mySeedsResult)
+        {
+            if (seed.Attributes.TryGetValue("plant_database_id", out var plantId))
+            {
+                ownedPlantIds.Add(plantId.ToString());
+            }
+        }
+
+        // ✅ Now populate the plant list, adding ✅ if the plant is already owned
         foreach (var feature in result)
         {
-            string ID = feature.Attributes.TryGetValue("ID", out var mk) ? mk?.ToString() ?? "N/A" : "N/A";
+            string id = feature.Attributes.TryGetValue("ID", out var mk) ? mk?.ToString() ?? "N/A" : "N/A";
             string commonName = feature.Attributes.TryGetValue("Common_Name", out var cn) ? cn?.ToString() ?? "N/A" : "N/A";
-            plantDict.Add(commonName, Convert.ToInt32(ID));
-            string formatted = commonName;
+
+            // Store in dictionary for later use
+            plantDict[commonName] = Convert.ToInt32(id);
+
+            // Append ✅ only if the plant is in the garden already
+            string formatted = ownedPlantIds.Contains(id)
+                ? $"{commonName} ✅"
+                : commonName;
+
             plantCollectionItems.Add(formatted);
         }
+
     }
 
     public async void GetPlant(object sender, EventArgs e)
@@ -129,9 +160,11 @@ public partial class PlantList : ContentPage
         var newFeature = table.CreateFeature();
         var clickedButton = (Button)sender;
 
+        char[] charsToTrim = { ' ', '✅' };
+
         var queryParams = new QueryParameters
         {
-            WhereClause = $"garden_name = '{_gardenManager.GardenName}' AND plant_database_id = {plantDict[clickedButton.Text]}", // use no quotes if ID is a number
+            WhereClause = $"garden_name = '{_gardenManager.GardenName}' AND plant_database_id = {plantDict[clickedButton.Text.TrimEnd(charsToTrim)]}", // use no quotes if ID is a number
             MaxFeatures = 1
         };
         var results = await table.QueryFeaturesAsync(queryParams, QueryFeatureFields.LoadAll);
@@ -150,7 +183,7 @@ public partial class PlantList : ContentPage
             await table.ApplyEditsAsync();
 
             // Save updated text to preferences
-            Preferences.Set("ButtonText", clickedButton.Text);
+            clickedButton.Text += " ✅";
             await DisplayAlert("Success", "Plant added to your seed bank!", "OK");
         }
     }
