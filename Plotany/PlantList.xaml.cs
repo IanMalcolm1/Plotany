@@ -1,12 +1,10 @@
-﻿using Android.Gms.Common;
-using AndroidX.Camera.Video;
+﻿
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
 using System.Collections.ObjectModel;
 using System.Net.Mail;
 using System.Text;
-using static Android.Renderscripts.Script;
 
 namespace Plotany;
 

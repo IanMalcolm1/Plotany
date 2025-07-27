@@ -28,10 +28,11 @@ namespace Plotany
         private string _gardenNameInput = String.Empty;
         private bool _showGardenNameInput = false;
         private GardenManager _gardenManager;
-
+        private ServiceFeatureTable _featureTable = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenPlants/FeatureServer/0"));
         private FeatureLayer _gardenLayer;
         private FeatureLayer _plantLayer;
         private FeatureLayer _seedBagLayer;
+
         private BasemapStyle _currentBasemapStyle;
         public ICommand ItemTappedCommand { get; }
 
@@ -170,9 +171,8 @@ namespace Plotany
 
                 await LoadFromArcGISOnlineAsync();
 
-                var featureTable = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenPlants/FeatureServer/0")); // Update with your service URL
+                _seedBagLayer = new FeatureLayer(_featureTable);
 
-                _seedBagLayer = new FeatureLayer(featureTable);
 
             }
 
@@ -350,7 +350,7 @@ namespace Plotany
 
                 var gardenQuery = new QueryParameters
                 {
-                    WhereClause = "Name = 'sam'",
+                    WhereClause = $"Name = {_gardenManager}",
                     ReturnGeometry = true,
                     
                 };
@@ -384,7 +384,7 @@ namespace Plotany
 
                 var plantQuery = new QueryParameters
                 {
-                    WhereClause = $"Name = 'sam'",
+                    WhereClause = $"Name = {_gardenManager}",
                     ReturnGeometry = true,
                     
                 };
@@ -586,10 +586,11 @@ namespace Plotany
         {
             try
             {
+                await _seedBagLayer.RetryLoadAsync();
                 PlantListView.ItemsSource = null;
                 var queryParams = new QueryParameters
                 {
-                    WhereClause = "garden_name = 'sam'"
+                    WhereClause = $"garden_name = {_gardenManager}"
                 };
                 var queryResult = await _seedBagLayer.FeatureTable.QueryFeaturesAsync(queryParams);
                 var plantItems = queryResult.Select(f => new PlantItem
