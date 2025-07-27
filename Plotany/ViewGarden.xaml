@@ -60,7 +60,6 @@
                         Clicked="DiscardButton_Click" HorizontalOptions="Fill"
                         IsVisible="{Binding GeometryEditor.IsStarted, Source={x:Reference GardenMapView}}"
                         Style="{StaticResource ToolButtonStyle}" ImageSource="cancel.png"/>
-
                     </Grid>
                 </ScrollView>
             </Grid>
