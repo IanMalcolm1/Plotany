@@ -12,10 +12,20 @@
     </ContentPage.Resources>
     <Grid RowDefinitions="*,Auto">
         <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" />
-        <StackLayout x:Name="EmptyStatePanel" Grid.Row="0" HorizontalOptions="Center" IsVisible="False">
-            <Label Text="You haven't set up your garden yet." FontSize="Medium" />
-            <Button Text="Setup My Garden" Clicked="OnSetupGardenClicked" />
+        <StackLayout HorizontalOptions="Center" VerticalOptions="End" Margin="0">
+            <ListView x:Name="PlantListView" WidthRequest="150" HeightRequest="200" SelectionMode="Single" ItemSelected="PlantListView_ItemSelected">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Border Background="#A3D9B1" Padding="10" StrokeShape="RoundRectangle 8">
+                                <Label Text="{Binding Name}" TextColor="#1F2F2E"/>
+                            </Border>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackLayout>
+
         <!--<Button x:Name="ResetMapButton" Grid.Row="0" Text="Reset Map" Clicked="ResetMapButton_Click" 
                 HorizontalOptions="End" VerticalOptions="Start" Margin="10" />-->
         <Grid Margin="5,5,5,5" ColumnSpacing="5" HorizontalOptions="End" RowDefinitions="auto,*,auto" RowSpacing="5" VerticalOptions="Start">
