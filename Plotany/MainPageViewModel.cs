@@ -25,4 +25,9 @@ public partial class MainPageViewModel : ObservableObject
         _gardenManager.GardenName = GardenName;
         SettingName = false;
     }
+    [RelayCommand]
+    private async Task NavigateMakeGarden()
+    {
+        await Shell.Current.GoToAsync("///ViewGarden");
+    }
 }
