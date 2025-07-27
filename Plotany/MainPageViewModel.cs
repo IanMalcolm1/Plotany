@@ -52,7 +52,7 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateMakeGarden()
     {
-        await Shell.Current.GoToAsync("///QuarantinesPage");
+        await Shell.Current.GoToAsync("///ViewGarden");
     }
 
     private async Task HandleGardenNameChanged()

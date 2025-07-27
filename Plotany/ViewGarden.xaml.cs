@@ -25,11 +25,17 @@ namespace Plotany
         private Dictionary<GeometryType, Button> _geometryButtons;
         private Dictionary<string, GeometryEditorTool> _toolDictionary;
 
-        public ViewGarden()
+        private GardenManager _gardenManager;
+
+        public ViewGarden(GardenManager gardenManager)
         {
             InitializeComponent();
             Initialize();
             LoadSavedDrawingsAsync();
+
+            Shell.SetTabBarIsVisible(this, false);
+            _gardenManager = gardenManager;
+            _gardenManager.GardenNameChanged += (s, e) => Shell.SetTabBarIsVisible(this, true);
         }
 
         private void Initialize()
@@ -346,7 +352,7 @@ namespace Plotany
         private void DisableEditingTools()
         {
             PointButton.IsEnabled = false;
-           // MultipointButton.IsEnabled = false;
+            // MultipointButton.IsEnabled = false;
             //PolylineButton.IsEnabled = false;
             PolygonButton.IsEnabled = false;
             //ToolPicker.IsEnabled = false;
@@ -382,7 +388,7 @@ namespace Plotany
         {
             if (!_geometryEditor.IsStarted)
             {
-               // DisableOtherGeometryButtons(PolylineButton);
+                // DisableOtherGeometryButtons(PolylineButton);
                 _geometryEditor.Start(GeometryType.Polyline);
             }
         }
@@ -414,10 +420,10 @@ namespace Plotany
                 // Set the GeometryEditor to the MapView
                 GardenMapView.GeometryEditor = _geometryEditor;
                 _geometryEditor.Start(GeometryType.Polygon);
-             
+
 
             }
-            
+
         }
 
         //private void ToolPicker_SelectedIndexChanged(object sender, EventArgs e)
