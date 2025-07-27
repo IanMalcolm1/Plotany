@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Plotany.PlantList"
              Title="Plant Recommendations"
-             BackgroundColor="#F1F8F6">
+             BackgroundColor="#30884A">
 
     <Shell.TitleView>
         <Label Text="Plant Recommendations"
@@ -30,7 +30,7 @@
 
         <Border
     x:Name="soilBox"
-    BackgroundColor="#CDE3D0"
+    BackgroundColor="#FFFFFF"
     Stroke="#CDE3D0"
     StrokeThickness="1"
     IsVisible="False"
@@ -56,7 +56,7 @@
 
         <Border
     x:Name="climateBox"
-    BackgroundColor="#CDE3D0"
+    BackgroundColor="#FFFFFF"
     Stroke="#CDE3D0"
     StrokeThickness="1"
     IsVisible="False"
@@ -82,7 +82,7 @@
 
         <Border
     x:Name="plantBox"
-    BackgroundColor="#CDE3D0"
+    BackgroundColor="#FFFFFF"
     Stroke="#CDE3D0"
     StrokeThickness="1"
     IsVisible="False"
@@ -113,7 +113,7 @@
                     <DataTemplate>
                         <Grid Padding="0" Margin="0">
                             <Border
-                        BackgroundColor="#CDE3D0"
+                        BackgroundColor="#FFFFFF"
                         Stroke="#CDE3D0"
                         StrokeThickness="1"
                         Margin="20,5,20,5"
