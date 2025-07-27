@@ -12,7 +12,7 @@
     </ContentPage.Resources>
     <Grid>
         <Grid RowDefinitions="*,Auto">
-            <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" />
+            <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" GeoViewTapped="GardenMapView_GeoViewTapped" />
             <StackLayout HorizontalOptions="Center" VerticalOptions="End" Margin="0">
                 <ListView x:Name="PlantListView" WidthRequest="150" HeightRequest="200" SelectionMode="Single" ItemSelected="PlantListView_ItemSelected">
                     <ListView.ItemTemplate>
@@ -76,5 +76,14 @@
                 </StackLayout>
             </Border>
         </StackLayout>
+
+        <Border Background="#99ffffff" x:Name="popupPanel" IsVisible="False">
+            <Border HorizontalOptions="Center" VerticalOptions="Center" Background="{AppThemeBinding Dark=Black, Light=White}" Margin="0,32" Padding="12">
+                <Grid>
+                    <esriUI:PopupViewer x:Name="popupViewer" Padding="12" MaximumWidthRequest="400" MaximumHeightRequest="400" PopupAttachmentClicked="popupViewer_PopupAttachmentClicked" HyperlinkClicked="popupViewer_HyperlinkClicked" />
+                    <Button BorderWidth="0" Text="X" HorizontalOptions="End" VerticalOptions="Start" Clicked="CloseButton_Click" BackgroundColor="Transparent" TextColor="{AppThemeBinding Dark=White, Light=Black}" Margin="5" />
+                </Grid>
+            </Border>
+        </Border>
     </Grid>
 </ContentPage>

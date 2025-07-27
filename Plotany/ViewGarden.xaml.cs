@@ -2,6 +2,7 @@ using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Mapping.Labeling;
+using Esri.ArcGISRuntime.Mapping.Popups;
 using Esri.ArcGISRuntime.Portal;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.Tasks.Geocoding;
@@ -10,10 +11,11 @@ using Esri.ArcGISRuntime.UI.Editing;
 using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.ComponentModel;
 
 namespace Plotany
 {
@@ -107,7 +109,7 @@ namespace Plotany
                     return;
                 }
 
-                _currentBasemapStyle = BasemapStyle.ArcGISImageryStandard;
+                //_currentBasemapStyle = BasemapStyle.ArcGISImageryStandard;
                 GardenMapView.Map = map;
 
                 await Task.Delay(1000);
@@ -455,7 +457,30 @@ namespace Plotany
                 GardenMapView.LocationDisplay.IsEnabled = false;
             }
         }
+        private void CloseButton_Click(object sender, EventArgs e)
+        {
+            popupPanel.IsVisible = false;
+        }
 
+        private void popupViewer_PopupAttachmentClicked(object sender, Esri.ArcGISRuntime.Toolkit.Maui.PopupAttachmentClickedEventArgs e)
+        {
+            e.Handled = true; // Prevent default launch action
+            // Share file:
+            // _ = Share.Default.RequestAsync(new ShareFileRequest(new ReadOnlyFile(e.Attachment.Filename!, e.Attachment.ContentType)));
+
+            // Open default file handler
+            _ = Microsoft.Maui.ApplicationModel.Launcher.Default.OpenAsync(
+                 new Microsoft.Maui.ApplicationModel.OpenFileRequest(e.Attachment.Name, new ReadOnlyFile(e.Attachment.Filename!, e.Attachment.ContentType)));
+        }
+
+        private void popupViewer_HyperlinkClicked(object sender, Esri.ArcGISRuntime.Toolkit.Maui.HyperlinkClickedEventArgs e)
+        {
+            // Include below line if you want to prevent the default action
+            // e.Handled = true;
+
+            // Perform custom action when a link is clicked
+            Debug.WriteLine(e.Uri);
+        }
         private Task<MapPoint?> WaitForLocationAsync(int timeoutMillis)
         {
             var tcs = new TaskCompletionSource<MapPoint?>();
@@ -620,22 +645,133 @@ namespace Plotany
         private async void GardenMapView_GeoViewTapped(object sender, Esri.ArcGISRuntime.Maui.GeoViewInputEventArgs e)
         {
             if (_geometryEditor.IsStarted) return;
+            PlantListView.IsVisible = false;
             try
             {
-                var results = await GardenMapView.IdentifyLayersAsync(e.Position, 5, false);
-                var identifyResult = results.FirstOrDefault(r => r.LayerContent == _gardenLayer || r.LayerContent == _plantLayer);
-                _selectedFeature = identifyResult?.GeoElements.FirstOrDefault() as Feature;
-                if (_selectedFeature == null) return;
-                var geometryType = _selectedFeature.Geometry.GeometryType;
-                _geometryEditor.Start(_selectedFeature.Geometry);
+                if (_plantLayer == null || _plantLayer.FeatureTable == null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Plant layer or table is not initialized.", "OK");
+                    return;
+                }
+
+                if (_plantLayer.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
+                {
+                    await _plantLayer.LoadAsync();
+                }
+
+                var mapPoint = GardenMapView.ScreenToLocation(e.Position);
+
+                // Define a small buffer to use as the spatial query envelope
+                var tolerance = 5; // in pixels
+                var mapTolerance = tolerance * GardenMapView.UnitsPerPixel;
+                var envelope = new Envelope(
+                    mapPoint.X - mapTolerance,
+                    mapPoint.Y - mapTolerance,
+                    mapPoint.X + mapTolerance,
+                    mapPoint.Y + mapTolerance,
+                    GardenMapView.Map.SpatialReference);
+
+                var spatialQuery = new QueryParameters
+                {
+                    Geometry = envelope,
+                    SpatialRelationship = SpatialRelationship.Intersects,
+                    ReturnGeometry = true,
+                    MaxFeatures = 1
+                };
+
+                // Execute query directly on the feature table
+                var queryResult = await _plantLayer.FeatureTable.QueryFeaturesAsync(spatialQuery);
+
+                var feature = queryResult.FirstOrDefault();
+                if (feature == null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Info", "No plant feature found at the tapped location.", "OK");
+                    return;
+                }
+
+                _selectedFeature = feature;
+
+                // Create popup manually from layer if PopupDefinition is set
+                Popup popup = null;
+                if (_plantLayer.PopupDefinition != null)
+                {
+                    popup = new Popup(feature, _plantLayer.PopupDefinition);
+                }
+
+                if (popup != null)
+                {
+                    popupViewer.Popup = popup;
+                    popupPanel.IsVisible = true;
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Debug", "No popup configured for plant feature.", "OK");
+                }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error editing", ex.Message, "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Error querying plant feature: {ex.Message}", "OK");
                 ResetFromEditingSession();
             }
         }
 
+        private Popup? GetPopup(IdentifyLayerResult result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            var popup = result.Popups.FirstOrDefault();
+            if (popup != null)
+            {
+                return popup;
+            }
+
+            var geoElement = result.GeoElements.FirstOrDefault();
+            if (geoElement != null)
+            {
+                if (result.LayerContent is IPopupSource)
+                {
+                    var popupDefinition = ((IPopupSource)result.LayerContent).PopupDefinition;
+                    if (popupDefinition != null)
+                    {
+                        return new Popup(geoElement, popupDefinition);
+                    }
+                }
+
+                return Popup.FromGeoElement(geoElement);
+            }
+
+            return null;
+        }
+
+        private Popup? GetPopup(IEnumerable<IdentifyLayerResult> results)
+        {
+            if (results == null)
+            {
+                return null;
+            }
+            foreach (var result in results)
+            {
+                var popup = GetPopup(result);
+                if (popup != null)
+                {
+                    return popup;
+                }
+
+                foreach (var subResult in result.SublayerResults)
+                {
+                    popup = GetPopup(subResult);
+                    if (popup != null)
+                    {
+                        return popup;
+                    }
+                }
+            }
+
+            return null;
+        }
         private void ResetFromEditingSession()
         {
             _selectedFeature = null;
