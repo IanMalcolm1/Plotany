@@ -27,6 +27,7 @@ namespace Plotany
         private Dictionary<string, GeometryEditorTool> _toolDictionary;
         private string _gardenNameInput = String.Empty;
         private bool _showGardenNameInput = false;
+        private GardenManager _gardenManager;
 
         private FeatureLayer _gardenLayer;
         private FeatureLayer _plantLayer;
