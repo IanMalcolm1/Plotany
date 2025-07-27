@@ -34,8 +34,11 @@ namespace Plotany
 
             BindingContext = this;
 
-            Shell.SetTabBarIsVisible(this, false);
             _gardenManager = gardenManager;
+            if (_gardenManager.GardenName == null)
+            {
+                Shell.SetTabBarIsVisible(this, false);
+            }
             _gardenManager.GardenNameChanged += (s, e) => Shell.SetTabBarIsVisible(this, true);
         }
 

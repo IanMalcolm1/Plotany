@@ -13,6 +13,14 @@
         <local:MainPageViewModel/>
     </d:ContentPage.BindingContext>
 
+    <Shell.TitleView>
+        <Label Text="Plotany"
+               FontSize="18"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+    </Shell.TitleView>
+
     <Grid x:Name="MainPageContextRoot" RowDefinitions="Auto, Auto">
         <Grid x:Name="WeatherNotifications">
             <Label Text="{Binding WeatherWarning}"/>
