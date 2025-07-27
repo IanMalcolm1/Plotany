@@ -44,7 +44,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" ForegroundFile="Resources\Splash\splash.svg" Color="#30884A" BaseSize="2633,5752" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -65,12 +65,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="PlantList.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="PlantList.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="ViewGarden.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 	</ItemGroup>
-	
+
 </Project>
