@@ -271,8 +271,6 @@ namespace Plotany
         {
             try
             {
-                await LoadMap();
-
                 if (_gardenLayer == null || _plantLayer == null)
                 {
                     // await DisplayAlert("Load Error", "Garden or Plant layer not initialized.", "OK");
@@ -365,7 +363,7 @@ namespace Plotany
             }
             catch (Exception ex)
             {
-                // await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
+                await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
             }
         }
 
