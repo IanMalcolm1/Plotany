@@ -4,14 +4,10 @@
              xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013"
              xmlns:local="clr-namespace:Plotany"
              x:Class="Plotany.QuarantinesTabView">
-    <ContentPage.Resources>
-        <local:QuarantinesTabViewModel x:Key="QuarantinesTabViewModel" />
-    </ContentPage.Resources>
-    <Grid BindingContext="{StaticResource QuarantinesTabViewModel}"
-          RowDefinitions="*, Auto">
-        <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+    <Grid RowDefinitions="*, Auto">
+        <Grid RowDefinitions="2*,*" ColumnDefinitions="*,*">
             <esri:MapView x:Name="QuarantineMapView" Grid.ColumnSpan="2" Grid.RowSpan="2" Map="{Binding QuarantineMap}"/>
-            <Border Grid.Row="1" Background="White">
+            <Border Grid.Row="1" Background="White" Opacity="0.9">
                 <esri:Legend GeoView="{x:Reference QuarantineMapView}"/>
             </Border>
         </Grid>
