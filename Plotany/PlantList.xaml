@@ -13,10 +13,8 @@
                VerticalOptions="Center" />
     </Shell.TitleView>
 
-
-
-     <StackLayout>
-            <!--
+    <StackLayout>
+        <!--
             <Button 
                 x:Name="startButton"
                 TextColor="#1F2F2E"

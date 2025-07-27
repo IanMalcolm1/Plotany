@@ -49,12 +49,6 @@ public partial class MainPageViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task NavigateMakeGarden()
-    {
-        await Shell.Current.GoToAsync("///QuarantinesPage");
-    }
-
     private async Task HandleGardenNameChanged()
     {
         if (string.IsNullOrEmpty(_gardenManager.GardenName))
@@ -147,6 +141,7 @@ public partial class MainPageViewModel : ObservableObject
 
         return forecasts;
     }
+
     [RelayCommand]
     private async Task NavigateMakeGarden()
     {
