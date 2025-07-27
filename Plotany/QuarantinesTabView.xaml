@@ -6,9 +6,13 @@
              x:Class="Plotany.QuarantinesTabView">
     <Grid RowDefinitions="*, Auto">
         <Grid RowDefinitions="2*,*" ColumnDefinitions="*,*">
-            <esri:MapView x:Name="QuarantineMapView" Grid.ColumnSpan="2" Grid.RowSpan="2" Map="{Binding QuarantineMap}"/>
+            <esri:MapView x:Name="QuarantineMapView" Grid.ColumnSpan="2" Grid.RowSpan="2" Map="{Binding QuarantineMap}"
+                          GeoViewTapped="mapView_GeoViewTapped"/>
             <Border Grid.Row="1" Background="White" Opacity="0.9">
                 <esri:Legend GeoView="{x:Reference QuarantineMapView}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Background="White" Opacity="0.9" x:Name="popupPanel" IsVisible="False">
+                <esri:PopupViewer x:Name="popupViewer" Padding="12" MaximumWidthRequest="400" MaximumHeightRequest="400" PopupAttachmentClicked="popupViewer_PopupAttachmentClicked" HyperlinkClicked="popupViewer_HyperlinkClicked" />
             </Border>
         </Grid>
         <Button Grid.Row="1"
