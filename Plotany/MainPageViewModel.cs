@@ -1,9 +1,6 @@
-using System.Diagnostics;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Net.Http;
-using System.Text.Json;
 using Esri.ArcGISRuntime.Geometry;
 
 namespace Plotany;

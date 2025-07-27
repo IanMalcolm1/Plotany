@@ -76,7 +76,7 @@ public class GardenManager
         {
             WhereClause = $"Name=\'{_gardenName}\'",
             ReturnGeometry = true,
-            OutSpatialReference=SpatialReferences.Wgs84
+            OutSpatialReference = SpatialReferences.Wgs84
         };
 
         var result = await _gardenFeatureTable.QueryFeaturesAsync(query);

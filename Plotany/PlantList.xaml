@@ -1,31 +1,92 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Plotany.PlantList">
+             x:Class="Plotany.PlantList"
+             Title="Plant Recommendations"
+             BackgroundColor="#F1F8F6">
 
-    <ScrollView>
-        <StackLayout>
+    <Shell.TitleView>
+        <Label Text="Plant Recommendations"
+               FontSize="18"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+    </Shell.TitleView>
 
-            <Label x:Name="ResultLabel"
-               FontSize="16"
-               Padding="20"
-               LineBreakMode="WordWrap" />
-
-            <Button Text="Get Plants"
+    <StackLayout>
+        <Button 
+                x:Name="startButton"
+                TextColor="#1F2F2E"
+                Text="Start here!" 
+                FontSize="20"
+                IsVisible="True"
+                BackgroundColor="#A3D9B1"
+                WidthRequest="200"
+                HeightRequest="100"
+                Margin="50,0,50,0"
                 Clicked="GetPlant" />
 
-            <CollectionView x:Name="ResultsCollection">
+        <Frame x:Name="soilBox"
+               BackgroundColor="#CDE3D0"
+               IsVisible="False"
+               BorderColor="#CDE3D0"
+               CornerRadius="10"
+               Padding="15"
+               Margin="20, 5, 20, 5">
+            <Label x:Name="soilInfo" Text="..."
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   FontSize="16"
+                   TextColor="#1F2F2E" />
+        </Frame>
+
+        <Frame x:Name="climateBox"
+               BackgroundColor="#CDE3D0"
+               IsVisible="False"
+               BorderColor="#CDE3D0"
+               CornerRadius="10"
+               Padding="15"
+               Margin="20, 5, 20, 5">
+            <Label x:Name="climateInfo" Text="..."
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   FontSize="16"
+                   TextColor="#1F2F2E" />
+        </Frame>
+
+        <Frame x:Name="plantBox"
+               BackgroundColor="#CDE3D0"
+               IsVisible="False"
+               BorderColor="#CDE3D0"
+               CornerRadius="10"
+               Padding="15"
+               Margin="20, 20, 20, 5">
+            <Label x:Name="plantInfo" Text="Based on your soil and climate, these plants will grow nicely in your garden!"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   FontSize="16"
+                   TextColor="#1F2F2E" />
+        </Frame>
+
+        <ScrollView>
+            <CollectionView x:Name="PlantCollection">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="5" Padding="10" BackgroundColor="#eeeeee">
-                            <Label Text="{Binding}" />
-                        </Border>
+                        <Button 
+                            x:Name="AddPlantButton"
+                            Margin="20,5,20,5" 
+                            Padding="15" 
+                            BackgroundColor="#CDE3D0"
+                            TextColor="#1F2F2E"                           
+                            Text="{Binding}" 
+                            FontSize="14"
+                            Clicked="AddPlantToGarden">
+                        </Button>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+        </ScrollView>
+    </StackLayout>
 
-
-        </StackLayout>
-    </ScrollView>
 
 </ContentPage>

@@ -22,6 +22,11 @@
             <ShellContent ContentTemplate="{DataTemplate local:QuarantinesTabView}"
                           Route="QuarantinesPage" />
         </Tab>
+        <Tab Title="View Garden">
+            <ShellContent Title="My Garden"
+                             ContentTemplate="{DataTemplate local:ViewGarden}"
+                             Route="ViewGarden" />
+        </Tab>
     </TabBar>
 
 </Shell>
