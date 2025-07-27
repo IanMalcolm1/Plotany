@@ -10,58 +10,72 @@
             <Setter Property="BackgroundColor" Value="#F1F8F6" />
         </Style>
     </ContentPage.Resources>
-    <Grid RowDefinitions="*,Auto">
-        <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" />
-        <StackLayout HorizontalOptions="Center" VerticalOptions="End" Margin="0">
-            <ListView x:Name="PlantListView" WidthRequest="150" HeightRequest="200" SelectionMode="Single" ItemSelected="PlantListView_ItemSelected">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <Border Background="#A3D9B1" Padding="10" StrokeShape="RoundRectangle 8">
-                                <Label Text="{Binding Name}" TextColor="#1F2F2E"/>
-                            </Border>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackLayout>
+    <Grid>
+        <Grid RowDefinitions="*,Auto">
+            <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" />
+            <StackLayout HorizontalOptions="Center" VerticalOptions="End" Margin="0">
+                <ListView x:Name="PlantListView" WidthRequest="150" HeightRequest="200" SelectionMode="Single" ItemSelected="PlantListView_ItemSelected">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Border Background="#A3D9B1" Padding="10" StrokeShape="RoundRectangle 8">
+                                    <Label Text="{Binding Name}" TextColor="#1F2F2E"/>
+                                </Border>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
 
-        <!--<Button x:Name="ResetMapButton" Grid.Row="0" Text="Reset Map" Clicked="ResetMapButton_Click" 
-                HorizontalOptions="End" VerticalOptions="Start" Margin="10" />-->
-        <Grid Margin="5,5,5,5" ColumnSpacing="5" HorizontalOptions="End" RowDefinitions="auto,*,auto" RowSpacing="5" VerticalOptions="Start">
-            
-            <ScrollView x:Name="GeometryEditorPanel" Grid.Row="2" IsVisible="true" HorizontalOptions="End">
-                <Grid RowDefinitions="auto, auto, auto, auto, auto, auto, auto, auto" RowSpacing="5" VerticalOptions="Start" HorizontalOptions="End">
-                    <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PointButton" Grid.Row="0" Clicked="PointButton_Click" ImageSource="addplant.png" />
-                    <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PolygonButton" Grid.Row="1" Clicked="PolygonButton_Click" ImageSource="addfence.png"/>
-                    <Button Grid.Row="2"
-                            Clicked="UndoButton_Click"
-                            IsVisible="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}"
-                            Style="{StaticResource ToolButtonStyle}"
-                            ImageSource="undo.png"/>
+            <!--<Button x:Name="ResetMapButton" Grid.Row="0" Text="Reset Map" Clicked="ResetMapButton_Click" 
+            HorizontalOptions="End" VerticalOptions="Start" Margin="10" />-->
+            <Grid Margin="5,5,5,5" ColumnSpacing="5" HorizontalOptions="End" RowDefinitions="auto,*,auto" RowSpacing="5" VerticalOptions="Start">
 
-                    <Button Grid.Row="3"
-                            Clicked="RedoButton_Click"
-                            IsVisible="{Binding GeometryEditor.CanRedo, Source={x:Reference GardenMapView}}"
-                            Style="{StaticResource ToolButtonStyle}"
-                            ImageSource="redo.png"/>
+                <ScrollView x:Name="GeometryEditorPanel" Grid.Row="2" IsVisible="true" HorizontalOptions="End">
+                    <Grid RowDefinitions="auto, auto, auto, auto, auto, auto, auto, auto" RowSpacing="5" VerticalOptions="Start" HorizontalOptions="End">
+                        <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PointButton" Grid.Row="0" Clicked="PointButton_Click" ImageSource="addplant.png" />
+                        <Button  Style="{StaticResource ToolButtonStyle}" x:Name="PolygonButton" Grid.Row="1" Clicked="PolygonButton_Click" ImageSource="addfence.png"/>
+                        <Button Grid.Row="2"
+                        Clicked="UndoButton_Click"
+                        IsVisible="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}"
+                        Style="{StaticResource ToolButtonStyle}"
+                        ImageSource="undo.png"/>
 
-                    <Button Grid.Row="4"
-                            x:Name="SaveButton"
-                            Clicked="SaveButton_Click"
-                            IsVisible="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}"
-                            Style="{StaticResource ToolButtonStyle}"
-                           
-                            ImageSource="save.png"/>
+                        <Button Grid.Row="3"
+                        Clicked="RedoButton_Click"
+                        IsVisible="{Binding GeometryEditor.CanRedo, Source={x:Reference GardenMapView}}"
+                        Style="{StaticResource ToolButtonStyle}"
+                        ImageSource="redo.png"/>
 
-                    <Button x:Name="DiscardButton"
-                            Grid.Row="5"
-                            Clicked="DiscardButton_Click" HorizontalOptions="Fill"
-                            IsVisible="{Binding GeometryEditor.IsStarted, Source={x:Reference GardenMapView}}"
-                            Style="{StaticResource ToolButtonStyle}" ImageSource="cancel.png"/>
+                        <Button Grid.Row="4"
+                        x:Name="SaveButton"
+                        Clicked="SaveButton_Click"
+                        IsVisible="{Binding GeometryEditor.CanUndo, Source={x:Reference GardenMapView}}"
+                        Style="{StaticResource ToolButtonStyle}"
+                       
+                        ImageSource="save.png"/>
 
-                </Grid>
-            </ScrollView>
+                        <Button x:Name="DiscardButton"
+                        Grid.Row="5"
+                        Clicked="DiscardButton_Click" HorizontalOptions="Fill"
+                        IsVisible="{Binding GeometryEditor.IsStarted, Source={x:Reference GardenMapView}}"
+                        Style="{StaticResource ToolButtonStyle}" ImageSource="cancel.png"/>
+
+                    </Grid>
+                </ScrollView>
+            </Grid>
         </Grid>
+        <StackLayout VerticalOptions="Center" IsVisible="{Binding ShowGardenNameInput}" IsEnabled="{Binding ShowGardenNameInput}">
+            <Border Background="{StaticResource Background}" Margin="20,0,20,0" >
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <StackLayout>
+                    <Label Text="Pick a name for your garden" HorizontalTextAlignment="Center"/>
+                    <Entry Text="{Binding GardenNameInput}" />
+                    <Button Text="Create" Clicked="SaveButton_Click"/>
+                </StackLayout>
+            </Border>
+        </StackLayout>
     </Grid>
 </ContentPage>

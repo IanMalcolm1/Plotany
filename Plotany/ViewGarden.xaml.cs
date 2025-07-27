@@ -13,10 +13,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.ComponentModel;
 
 namespace Plotany
 {
-    public partial class ViewGarden : ContentPage
+    public partial class ViewGarden : ContentPage, INotifyPropertyChanged
     {
         private GeometryEditor _geometryEditor;
         private Feature _selectedFeature;
@@ -24,20 +25,55 @@ namespace Plotany
         private LocatorTask _locator;
         private Dictionary<GeometryType, Button> _geometryButtons;
         private Dictionary<string, GeometryEditorTool> _toolDictionary;
-        private string gardenName = "sam";
+        private string _gardenNameInput = String.Empty;
+        private bool _showGardenNameInput = false;
+
         private FeatureLayer _gardenLayer;
         private FeatureLayer _plantLayer;
         private FeatureLayer _seedBagLayer;
         private BasemapStyle _currentBasemapStyle;
         public ICommand ItemTappedCommand { get; }
 
-        public ViewGarden()
+        public ViewGarden(GardenManager gardenManager)
         {
             InitializeComponent();
             InitializeAsync().GetAwaiter().GetResult();
             //LoadSavedDrawingsAsync();
+            BindingContext = this;
+
+
+            _gardenManager = gardenManager;
+            if (_gardenManager.GardenName == null)
+            {
+                Shell.SetTabBarIsVisible(this, false);
+            }
+            _gardenManager.GardenNameChanged += (s, e) => Shell.SetTabBarIsVisible(this, true);
+        }
+        public string GardenNameInput
+        {
+            get => _gardenNameInput;
+            set
+            {
+                if (_gardenNameInput != value)
+                {
+                    _gardenNameInput = value;
+                    OnPropertyChanged(nameof(GardenNameInput));
+                }
+            }
         }
 
+        public bool ShowGardenNameInput
+        {
+            get => _showGardenNameInput;
+            set
+            {
+                if (_showGardenNameInput != value)
+                {
+                    _showGardenNameInput = value;
+                    OnPropertyChanged(nameof(ShowGardenNameInput));
+                }
+            }
+        }
         private async Task InitializeAsync()
         {
             Initialize();
@@ -192,6 +228,20 @@ namespace Plotany
 
         private async void SaveButton_Click(object sender, EventArgs e)
         {
+            string? gardenName = _gardenManager.GardenName;
+            if (gardenName == null)
+            {
+                if (string.IsNullOrEmpty(GardenNameInput))
+                {
+                    ShowGardenNameInput = true;
+                    return;
+                }
+                else
+                {
+                    gardenName = GardenNameInput;
+                    ShowGardenNameInput = false;
+                }
+            }
             try
             {
                 if (_geometryEditor == null || !_geometryEditor.IsStarted)
@@ -238,6 +288,11 @@ namespace Plotany
                 await featureTable.AddFeatureAsync(feature);
                 await featureTable.ApplyEditsAsync();
                 await LoadFromArcGISOnlineAsync();
+                if (_gardenManager.GardenName == null)
+                {
+                    await _gardenManager.SetGardenName(gardenName);
+                    await Shell.Current.GoToAsync("///PlantList");
+                }
             }
             catch (Exception ex)
             {
