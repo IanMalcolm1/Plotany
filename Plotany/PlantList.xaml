@@ -13,8 +13,8 @@
                VerticalOptions="Center" />
     </Shell.TitleView>
 
-
-        <StackLayout>
+    <StackLayout>
+        <!--
             <Button 
                 x:Name="startButton"
                 TextColor="#1F2F2E"
@@ -26,56 +26,64 @@
                 HeightRequest="100"
                 Margin="50,0,50,0"
                 Clicked="GetPlant" />
+            -->
 
-            <Frame x:Name="soilBox"
+        <Frame x:Name="soilBox"
                BackgroundColor="#CDE3D0"
                IsVisible="False"
                BorderColor="#CDE3D0"
                CornerRadius="10"
                Padding="15"
                Margin="20, 5, 20, 5">
-                   <Label x:Name="soilInfo" Text="..."
+            <Label x:Name="soilInfo" Text="..."
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
                    FontSize="16"
                    TextColor="#1F2F2E" />
-            </Frame>
+        </Frame>
 
-            <Frame x:Name="climateBox"
+        <Frame x:Name="climateBox"
                BackgroundColor="#CDE3D0"
                IsVisible="False"
                BorderColor="#CDE3D0"
                CornerRadius="10"
                Padding="15"
                Margin="20, 5, 20, 5">
-                <Label x:Name="climateInfo" Text="..."
+            <Label x:Name="climateInfo" Text="..."
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
                    FontSize="16"
                    TextColor="#1F2F2E" />
-            </Frame>
+        </Frame>
 
-            <Frame x:Name="plantBox"
+        <Frame x:Name="plantBox"
                BackgroundColor="#CDE3D0"
                IsVisible="False"
                BorderColor="#CDE3D0"
                CornerRadius="10"
                Padding="15"
                Margin="20, 20, 20, 5">
-                <Label x:Name="plantInfo" Text="Based on your soil and climate, these plants will grow nicely in your garden!"
+            <Label x:Name="plantInfo" Text="Based on your soil and climate, these plants will grow nicely in your garden!"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
                    FontSize="16"
                    TextColor="#1F2F2E" />
-            </Frame>
+        </Frame>
 
         <ScrollView>
             <CollectionView x:Name="PlantCollection">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="20,5,20,5" Padding="15" BackgroundColor="#CDE3D0">
-                            <Label Text="{Binding}" FontSize="14"/>
-                        </Frame>
+                        <Button 
+                            x:Name="AddPlantButton"
+                            Margin="20,5,20,5" 
+                            Padding="15" 
+                            BackgroundColor="#CDE3D0"
+                            TextColor="#1F2F2E"                           
+                            Text="{Binding}" 
+                            FontSize="14"
+                            Clicked="AddPlantToGarden">
+                        </Button>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
