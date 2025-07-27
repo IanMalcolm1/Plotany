@@ -13,19 +13,27 @@
     <Grid>
         <Grid RowDefinitions="*,Auto">
             <esriUI:MapView x:Name="GardenMapView" Grid.Row="0" GeoViewTapped="GardenMapView_GeoViewTapped" />
-            <StackLayout HorizontalOptions="Center" VerticalOptions="End" Margin="0">
+            <StackLayout x:Name="seedbank" HorizontalOptions="Start" VerticalOptions="End" Margin="0" IsVisible="False" Spacing="10">
+                <!-- Image Heading -->
+                <Image 
+        Source="seedbank.png" 
+        HeightRequest="50"
+        HorizontalOptions="Start"/>
+
+                <!-- List of Plants -->
                 <ListView x:Name="PlantListView" WidthRequest="150" HeightRequest="200" SelectionMode="Single" ItemSelected="PlantListView_ItemSelected">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Border Background="#A3D9B1" Padding="10" StrokeShape="RoundRectangle 8">
-                                    <Label Text="{Binding Name}" TextColor="#1F2F2E"/>
+                                <Border Background="#30884A" Padding="10" StrokeShape="RoundRectangle 8">
+                                    <Label Text="{Binding Name}" TextColor="#FFFFFF"/>
                                 </Border>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </StackLayout>
+
 
             <!--<Button x:Name="ResetMapButton" Grid.Row="0" Text="Reset Map" Clicked="ResetMapButton_Click" 
             HorizontalOptions="End" VerticalOptions="Start" Margin="10" />-->

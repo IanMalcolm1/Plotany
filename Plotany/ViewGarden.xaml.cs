@@ -552,7 +552,7 @@ namespace Plotany
                     await GardenMapView.SetViewpointGeometryAsync(selectedPlant.Feature.Geometry, 50);
                 }
             }
-            PlantListView.IsVisible = false;
+            seedbank.IsVisible = false;
         }
 
         private async void PointButton_Click(object sender, EventArgs e)
@@ -572,7 +572,7 @@ namespace Plotany
                     Feature = f
                 }).ToList();
                 PlantListView.ItemsSource = plantItems;
-                PlantListView.IsVisible = true;
+                seedbank.IsVisible = true;
                 if (plantItems.Count == 0)
                 {
                     //await DisplayAlert("No Results", "No plants found for 'my1st'.", "OK");
@@ -645,12 +645,15 @@ namespace Plotany
         private async void GardenMapView_GeoViewTapped(object sender, Esri.ArcGISRuntime.Maui.GeoViewInputEventArgs e)
         {
             if (_geometryEditor.IsStarted) return;
-            PlantListView.IsVisible = false;
+            if(seedbank.IsVisible == true) {
+                seedbank.IsVisible = false;
+                return;
+            }
             try
             {
                 if (_plantLayer == null || _plantLayer.FeatureTable == null)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Plant layer or table is not initialized.", "OK");
+                    //await Application.Current.MainPage.DisplayAlert("Error", "Plant layer or table is not initialized.", "OK");
                     return;
                 }
 
@@ -662,7 +665,7 @@ namespace Plotany
                 var mapPoint = GardenMapView.ScreenToLocation(e.Position);
 
                 // Define a small buffer to use as the spatial query envelope
-                var tolerance = 5; // in pixels
+                var tolerance = 30; // in pixels
                 var mapTolerance = tolerance * GardenMapView.UnitsPerPixel;
                 var envelope = new Envelope(
                     mapPoint.X - mapTolerance,
@@ -685,7 +688,7 @@ namespace Plotany
                 var feature = queryResult.FirstOrDefault();
                 if (feature == null)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Info", "No plant feature found at the tapped location.", "OK");
+                   // await Application.Current.MainPage.DisplayAlert("Info", "No plant feature found at the tapped location.", "OK");
                     return;
                 }
 
@@ -705,7 +708,7 @@ namespace Plotany
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Debug", "No popup configured for plant feature.", "OK");
+                   // await Application.Current.MainPage.DisplayAlert("Debug", "No popup configured for plant feature.", "OK");
                 }
             }
             catch (Exception ex)
