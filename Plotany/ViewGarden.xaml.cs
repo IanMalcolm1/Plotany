@@ -350,7 +350,7 @@ namespace Plotany
 
                 var gardenQuery = new QueryParameters
                 {
-                    WhereClause = $"Name = {_gardenManager}",
+                    WhereClause = $"Name = {_gardenManager.GardenName}",
                     ReturnGeometry = true,
                     
                 };
@@ -384,7 +384,7 @@ namespace Plotany
 
                 var plantQuery = new QueryParameters
                 {
-                    WhereClause = $"Name = {_gardenManager}",
+                    WhereClause = $"Name = {_gardenManager.GardenName}",
                     ReturnGeometry = true,
                     
                 };
@@ -590,7 +590,7 @@ namespace Plotany
                 PlantListView.ItemsSource = null;
                 var queryParams = new QueryParameters
                 {
-                    WhereClause = $"garden_name = {_gardenManager}"
+                    WhereClause = $"garden_name = {_gardenManager.GardenName}"
                 };
                 var queryResult = await _seedBagLayer.FeatureTable.QueryFeaturesAsync(queryParams);
                 var plantItems = queryResult.Select(f => new PlantItem
