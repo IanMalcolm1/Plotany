@@ -97,31 +97,67 @@
                     <Label Text="It can get hot in Southern California! Remember to water your plants frequently during heat waves and to plant native plants!"/>
                 </StackLayout>
             </Border>
-            <Border Grid.Row="2" Background="{StaticResource Container}"
-                    Margin="15" Padding="10" StrokeThickness="0">
+            <Border Grid.Row="2"
+        Background="{StaticResource Container}"
+        Margin="15"
+        Padding="10"
+        StrokeThickness="0">
+
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10"/>
+                    <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
+
+                <Border.Shadow>
+                    <Shadow
+            Offset="0,0.5"
+            Radius="10"
+            Brush="Black"
+            Opacity="0.3" />
+                </Border.Shadow>
+
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding NavToPlantsListCommand}" />
                 </Border.GestureRecognizers>
+
                 <StackLayout>
-                    <Label Text="Add a Plant" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="0,0,0,5"/>
-                    <Image Source="cancel.png"/>
+                    <Label Text="Add a Plant"
+               FontSize="16"
+               FontAttributes="Bold"
+               HorizontalTextAlignment="Center"
+               Margin="0,0,0,5" />
+                    <Image Source="addplant2.png" />
                 </StackLayout>
             </Border>
-            <Border Grid.Row="2" Grid.Column="1" Background="{StaticResource Container}"
-                    Margin="15" Padding="10" StrokeThickness="0">
-                <Label Text="Welcome!" HorizontalTextAlignment="Center" FontSize="18"/>
+            <Border Grid.Row="2"
+        Grid.Column="1"
+        Background="{StaticResource Container}"
+        Margin="15"
+        Padding="10"
+        StrokeThickness="0">
+
+                <Border.Shadow>
+                    <Shadow
+            Offset="0,0.5"
+            Radius="10"
+            Brush="Black"
+            Opacity="0.3" />
+                </Border.Shadow>
+
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10"/>
+                    <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
+
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding NavToPestsCommand}" />
                 </Border.GestureRecognizers>
+
                 <StackLayout>
-                    <Label Text="Report Pests" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="0,0,0,5"/>
-                    <Image Source="cancel.png"/>
+                    <Label Text="Report Pests"
+               FontSize="16"
+               FontAttributes="Bold"
+               HorizontalTextAlignment="Center"
+               Margin="0,0,0,5" />
+                    <Image Source="pests.png" />
                 </StackLayout>
             </Border>
         </Grid>

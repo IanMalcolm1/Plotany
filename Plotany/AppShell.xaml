@@ -8,22 +8,22 @@
     Title="Plotany">
 
     <TabBar>
-        <Tab Title="Home" Icon="nothing.png">
+        <Tab Title="Home" Icon="home.png">
             <ShellContent ContentTemplate="{DataTemplate local:MainPage}"
                           Route="HomePage" />
         </Tab>
         
-        <Tab Title="Garden">
+        <Tab Title="Garden" Icon="garden.png">
             <ShellContent ContentTemplate="{DataTemplate local:ViewGarden}"
                           Route="ViewGarden" />
         </Tab>
 
-        <Tab Title="Plants">
+        <Tab Title="Plants" Icon="planthome.png">
             <ShellContent ContentTemplate="{DataTemplate local:PlantList}"
                           Route="PlantList" />
         </Tab>
 
-        <Tab Title="Pests" Icon="nothing.png">
+        <Tab Title="Pests" Icon="reportpests.png">
             <ShellContent ContentTemplate="{DataTemplate local:QuarantinesTabView}"
                           Route="QuarantinesPage" />
         </Tab>
