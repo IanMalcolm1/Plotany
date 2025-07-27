@@ -9,25 +9,16 @@ public class GardenManager
     private ServiceFeatureTable _gardenFeatureTable;
 
     private string? _gardenName;
-    public string? GardenName
-    {
-        get => _gardenName;
-        set
-        {
-            if (_gardenName != value)
-            {
-                _gardenName = value;
-                OnGardenNameChanged();
-            }
-        }
-    }
+    public string? GardenName { get => _gardenName; }
+    private Feature? _gardenFeature;
 
     public event EventHandler? GardenIdSet;
     public event EventHandler? GardenNameChanged;
 
     public GardenManager(int? gardenId = null)
     {
-        GardenName = null;
+        _gardenName = null;
+        _gardenFeature = null;
         _gardenFeatureTable = new ServiceFeatureTable(new Uri(GardenLayerUri));
     }
 
@@ -36,29 +27,68 @@ public class GardenManager
         GardenNameChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    public async Task SetGardenName(string name)
+    {
+        if (_gardenName == name)
+        {
+            return;
+        }
+
+        var fallback = _gardenName;
+        try
+        {
+            _gardenName = name;
+            await RefreshGardenData();
+            OnGardenNameChanged();
+        }
+        catch
+        {
+            _gardenName = fallback;
+            throw InvalidOperationException("No records were found for the given garden name");
+        }
+    }
+
+    private Exception InvalidOperationException(string v)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<MapPoint> GetGardenCenter()
     {
-        if (GardenName == null)
+        if (_gardenFeature?.Geometry == null)
         {
-            throw new InvalidOperationException("Cannot get garden center point: garden name is not set.");
+            throw new InvalidOperationException("Cannot get garden center point: no garden geometry data stored.");
+        }
+        else
+        {
+            return GeometryEngine.LabelPoint(_gardenFeature.Geometry as Polygon);
+        }
+    }
+
+    public async Task RefreshGardenData()
+    {
+        if (_gardenName == null)
+        {
+            throw new InvalidOperationException("Cannot get garden data: garden name is not set.");
         }
 
         var query = new QueryParameters
         {
-            WhereClause = $"Name=\'{GardenName}\'",
+            WhereClause = $"Name=\'{_gardenName}\'",
             ReturnGeometry = true,
+            OutSpatialReference=SpatialReferences.Wgs84
         };
 
         var result = await _gardenFeatureTable.QueryFeaturesAsync(query);
         var record = result.FirstOrDefault();
 
-        if (record?.Geometry == null)
+        if (record == null)
         {
-            throw new InvalidOperationException("Cannot get garden center point: garden has no geometry.");
+            throw new InvalidOperationException("Cannot get garden data: garden name is invalid.");
         }
         else
         {
-            return GeometryEngine.LabelPoint(record.Geometry as Polygon);
+            _gardenFeature = record;
         }
     }
 }

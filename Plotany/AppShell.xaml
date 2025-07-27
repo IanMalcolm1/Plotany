@@ -9,24 +9,18 @@
 
     <TabBar>
         <Tab Title="Home" Icon="nothing.png">
-            <ShellContent
-                Title="Home"
-                ContentTemplate="{DataTemplate local:MainPage}"
-                Route="HomePage" />
+            <ShellContent ContentTemplate="{DataTemplate local:MainPage}"
+                          Route="HomePage" />
         </Tab>
 
         <Tab Title="Plants">
-            <ShellContent
-                Title="Plants"
-                ContentTemplate="{DataTemplate local:PlantList}"
-                Route="PlantList" />
+            <ShellContent ContentTemplate="{DataTemplate local:PlantList}"
+                          Route="PlantList" />
         </Tab>
 
         <Tab Title="Community" Icon="nothing.png">
-            <ShellContent
-                Title="Quarantines and Pest Reports"
-                ContentTemplate="{DataTemplate local:QuarantinesTabView}"
-                Route="QuarantinesPage" />
+            <ShellContent ContentTemplate="{DataTemplate local:QuarantinesTabView}"
+                          Route="QuarantinesPage" />
         </Tab>
     </TabBar>
 
