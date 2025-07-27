@@ -1,11 +1,18 @@
-﻿using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Mapping.Labeling;
+using Esri.ArcGISRuntime.Portal;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.Tasks.Geocoding;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Editing;
+using Microsoft.Maui.Controls;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using System.ComponentModel;
 
 namespace Plotany
@@ -13,26 +20,28 @@ namespace Plotany
     public partial class ViewGarden : ContentPage, INotifyPropertyChanged
     {
         private GeometryEditor _geometryEditor;
-        private Graphic _selectedGraphic;
+        private Feature _selectedFeature;
         private GraphicsOverlay _gardenOverlay;
         private LocatorTask _locator;
-        private SimpleFillSymbol _polygonSymbol;
-        private SimpleLineSymbol _polylineSymbol;
-        private SimpleMarkerSymbol _pointSymbol, _multiPointSymbol;
         private Dictionary<GeometryType, Button> _geometryButtons;
         private Dictionary<string, GeometryEditorTool> _toolDictionary;
         private string _gardenNameInput = String.Empty;
         private bool _showGardenNameInput = false;
-
         private GardenManager _gardenManager;
+
+        private FeatureLayer _gardenLayer;
+        private FeatureLayer _plantLayer;
+        private FeatureLayer _seedBagLayer;
+        private BasemapStyle _currentBasemapStyle;
+        public ICommand ItemTappedCommand { get; }
 
         public ViewGarden(GardenManager gardenManager)
         {
             InitializeComponent();
-            Initialize();
-            LoadSavedDrawingsAsync();
-
+            InitializeAsync().GetAwaiter().GetResult();
+            //LoadSavedDrawingsAsync();
             BindingContext = this;
+
 
             _gardenManager = gardenManager;
             if (_gardenManager.GardenName == null)
@@ -41,34 +50,6 @@ namespace Plotany
             }
             _gardenManager.GardenNameChanged += (s, e) => Shell.SetTabBarIsVisible(this, true);
         }
-
-        private void Initialize()
-        {
-            GardenMapView.Map = new Esri.ArcGISRuntime.Mapping.Map(BasemapStyle.ArcGISImageryStandard);
-            _gardenOverlay = new GraphicsOverlay();
-            GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
-            _locator = new LocatorTask(new Uri("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"));
-            _pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Red, 10);
-            _polylineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.Red, 3);
-            _polygonSymbol = new SimpleFillSymbol(
-                SimpleFillSymbolStyle.Solid,
-                System.Drawing.Color.Transparent,
-                new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.DarkGreen, 2));
-            _geometryEditor = new GeometryEditor();
-            GardenMapView.GeometryEditor = _geometryEditor;
-            _toolDictionary = new Dictionary<string, GeometryEditorTool>
-            {
-                { "Vertex", new VertexTool() },
-                { "Freehand", new FreehandTool() },
-                { "ReticleVertex", new ReticleVertexTool() }
-            };
-            _geometryButtons = new Dictionary<GeometryType, Button>
-            {
-                { GeometryType.Point, PointButton },
-                { GeometryType.Polygon, PolygonButton }
-            };
-        }
-
         public string GardenNameInput
         {
             get => _gardenNameInput;
@@ -94,20 +75,142 @@ namespace Plotany
                 }
             }
         }
-
-        private async void OnSetupGardenClicked(object sender, EventArgs e)
+        private async Task InitializeAsync()
         {
-            EmptyStatePanel.IsVisible = false;
-            var granted = await RequestLocationPermission();
-            if (!granted)
-            {
-                await DisplayAlert("Permission Required", "Location permission is required to set up your garden.", "OK");
-                EmptyStatePanel.IsVisible = true;
-                return;
-            }
-            await StartLocationTracking();
-            await Task.Delay(1500);
+            Initialize();
+
+            await Task.CompletedTask;
         }
+
+        private async void Initialize()
+
+        {
+
+            try
+
+            {
+
+                // Initialize graphics overlay
+
+                _gardenOverlay = new GraphicsOverlay();
+
+                GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
+
+                // Initialize map with webmap
+
+                string webmapId = "5319936041b145f083e58144986c91d5";
+
+                var portal = await ArcGISPortal.CreateAsync(new Uri("https://www.arcgis.com"));
+
+                var portalItem = await PortalItem.CreateAsync(portal, webmapId);
+
+                var map = new Esri.ArcGISRuntime.Mapping.Map(portalItem);
+
+                await map.LoadAsync();
+
+                if (map.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
+
+                {
+
+                   
+                    //await DisplayAlert("Load Error", "Failed to load webmap. Check webmap ID or connection.", "OK");
+
+                    return;
+
+                }
+                _currentBasemapStyle = BasemapStyle.ArcGISLightGray;
+                GardenMapView.Map = map;
+
+                await Task.Delay(1000);
+
+                _locator = new LocatorTask(new Uri("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"));
+
+                _geometryEditor = new GeometryEditor();
+
+                GardenMapView.GeometryEditor = _geometryEditor;
+
+                _toolDictionary = new Dictionary<string, GeometryEditorTool>
+
+{
+
+{ "Vertex", new VertexTool() },
+
+{ "Freehand", new FreehandTool() },
+
+{ "ReticleVertex", new ReticleVertexTool() }
+
+};
+
+                _geometryButtons = new Dictionary<GeometryType, Button>
+
+{
+
+{ GeometryType.Point, PointButton },
+
+{ GeometryType.Polygon, PolygonButton }
+
+};
+
+                // Find garden and plant layers in the webmap
+
+                _gardenLayer = map.OperationalLayers.FirstOrDefault(l => l.Name.Contains("Garden")) as FeatureLayer;
+
+                _plantLayer = map.OperationalLayers.FirstOrDefault(l => l.Name.Contains("PlantedPlants")) as FeatureLayer;
+
+                if (_gardenLayer == null || _plantLayer == null)
+
+                {
+
+                   // await DisplayAlert("Load Error", "Garden or Plant layer not found in webmap.", "OK");
+
+
+                    return;
+
+                }
+
+                await LoadFromArcGISOnlineAsync();
+
+                var featureTable = new ServiceFeatureTable(new Uri("https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenPlants/FeatureServer/0")); // Update with your service URL
+
+                _seedBagLayer = new FeatureLayer(featureTable);
+
+            }
+
+            catch (Exception ex)
+
+            {
+
+               // await DisplayAlert("Initialization Error", $"Failed to initialize: {ex.Message}", "OK");
+
+
+                // Ensure _gardenOverlay is initialized even on failure
+
+                if (_gardenOverlay == null)
+
+                {
+
+                    _gardenOverlay = new GraphicsOverlay();
+
+                    GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
+
+                }
+
+            }
+
+        }
+
+        //private async void OnSetupGardenClicked(object sender, EventArgs e)
+        //{
+        //    EmptyStatePanel.IsVisible = false;
+        //    var granted = await RequestLocationPermission();
+        //    if (!granted)
+        //    {
+        //        await DisplayAlert("Permission Required", "Location permission is required to set up your garden.", "OK");
+        //        EmptyStatePanel.IsVisible = true;
+        //        return;
+        //    }
+        //    await StartLocationTracking();
+        //}
 
         private async Task<bool> RequestLocationPermission()
         {
@@ -140,33 +243,52 @@ namespace Plotany
                     ShowGardenNameInput = false;
                 }
             }
-
             try
             {
-                var geometry = _geometryEditor.Stop();
-                if (geometry == null)
+                if (_geometryEditor == null || !_geometryEditor.IsStarted)
                 {
-                    await DisplayAlert("Nothing to save", "No polygon drawn.", "OK");
+                    //await DisplayAlert("Error", "No geometry is being edited.", "OK");
                     return;
                 }
+
+                var geometry = _geometryEditor.Stop();
+                if (_currentBasemapStyle == BasemapStyle.ArcGISImagery || _currentBasemapStyle == BasemapStyle.ArcGISImageryStandard)
+                {
+                    GardenMapView.Map.Basemap = new Basemap(BasemapStyle.ArcGISLightGray);
+                    _currentBasemapStyle = BasemapStyle.ArcGISLightGray;
+                }
+                if (geometry == null || geometry.IsEmpty)
+                {
+                   // await DisplayAlert("Error", "Invalid or empty geometry.", "OK");
+                    return;
+                }
+                
+                var featureTable = geometry.GeometryType == GeometryType.Point
+                    ? _plantLayer?.FeatureTable as ServiceFeatureTable
+                    : _gardenLayer?.FeatureTable as ServiceFeatureTable;
+
+                if (featureTable == null)
+                {
+                   // await DisplayAlert("Error", "Feature table is not initialized.", "OK");
+                    return;
+                }
+
+                var feature = featureTable.CreateFeature();
+                feature.Geometry = geometry;
+
                 if (geometry.GeometryType == GeometryType.Point)
                 {
-                    await SaveToArcGISOnlineAsync(geometry, gardenName, "my1st");
-                    await LoadFromArcGISOnlineAsync();
-                    await DisplayAlert("Success", "Mapped your plant", "OK");
-                    ResetFromEditingSession();
-                    return;
+                    feature.Attributes["Name"] = gardenName;
+                    feature.Attributes["PlantName"] = (PlantListView.SelectedItem as PlantItem)?.Name;
                 }
-                if (geometry.GeometryType == GeometryType.Polygon)
+                else
                 {
-                    await SaveToArcGISOnlineAsync(geometry, gardenName, "");
-                    await LoadFromArcGISOnlineAsync();
-
-                    await DisplayAlert("Success", "Polygon saved successfully!", "OK");
-                    ResetFromEditingSession();
+                    feature.Attributes["Name"] = gardenName;
                 }
 
-
+                await featureTable.AddFeatureAsync(feature);
+                await featureTable.ApplyEditsAsync();
+                await LoadFromArcGISOnlineAsync();
                 if (_gardenManager.GardenName == null)
                 {
                     await _gardenManager.SetGardenName(gardenName);
@@ -175,7 +297,7 @@ namespace Plotany
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to save polygon: {ex.Message}", "OK");
+               // await DisplayAlert("Save Error", $"Failed to save feature: {ex.Message}", "OK");
             }
         }
 
@@ -188,47 +310,105 @@ namespace Plotany
         {
             try
             {
-                // Clear existing graphics and layers
-                _gardenOverlay.Graphics.Clear();
-                GardenMapView.Map.OperationalLayers.Clear();
-
-                // Define URLs for garden and plant feature layers
-                string gardenLayerUrl = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenLayers/FeatureServer/0";
-                string plantLayerUrl = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/PlantedPlants/FeatureServer/0";
-
-                // Create and load garden feature layer
-                var gardenFeatureTable = new ServiceFeatureTable(new Uri(gardenLayerUrl));
-                var gardenLayer = new FeatureLayer(gardenFeatureTable);
-                await gardenLayer.LoadAsync();
-                if (gardenLayer.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
+                if (GardenMapView.Map == null)
                 {
-                    await DisplayAlert("Load Error", "Failed to load garden layer. Check API key or URL.", "OK");
-                    EmptyStatePanel.IsVisible = true;
+                   // await DisplayAlert("Load Error", "Map not initialized. Check webmap ID or connection.", "OK");
                     return;
                 }
-                GardenMapView.Map.OperationalLayers.Add(gardenLayer);
+                await GardenMapView.Map.LoadAsync();
 
-                // Apply renderer to garden layer
-                gardenLayer.Renderer = new SimpleRenderer(_polygonSymbol);
+                if (_gardenOverlay == null)
+                {
+                    _gardenOverlay = new GraphicsOverlay();
+                    GardenMapView.GraphicsOverlays.Add(_gardenOverlay);
+                }
 
-                // Query for the garden named "sam"
+                _gardenOverlay.Graphics.Clear();
+                _gardenOverlay.LabelDefinitions.Clear();
+                GardenMapView.Map.OperationalLayers.Clear();
+
+                if (_gardenLayer == null || _plantLayer == null)
+                {
+                   // await DisplayAlert("Load Error", "Garden or Plant layer not initialized.", "OK");
+                    return;
+                }
+
+                await Task.WhenAll(_gardenLayer.LoadAsync(), _plantLayer.LoadAsync());
+                if (_gardenLayer.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded ||
+                    _plantLayer.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
+                {
+                   // await DisplayAlert("Load Error", "Failed to load layers. Check API key or URL.", "OK");
+                    return;
+                }
+
+                var gardenTable = _gardenLayer.FeatureTable as ServiceFeatureTable;
+                if (gardenTable == null)
+                {
+                    //await DisplayAlert("Load Error", "Garden layer feature table is null.", "OK");
+                    return;
+                }
+
                 var gardenQuery = new QueryParameters
                 {
                     WhereClause = "Name = 'sam'",
                     ReturnGeometry = true,
-                    MaxFeatures = 1
+                    
                 };
-                var gardenResult = await gardenFeatureTable.QueryFeaturesAsync(gardenQuery);
-                var gardenFeature = gardenResult.FirstOrDefault();
-                if (gardenFeature == null)
+                var gardenResult = await gardenTable.QueryFeaturesAsync(gardenQuery);
+                if (!gardenResult.Any())
                 {
-                    await DisplayAlert("Not Found", "No feature with name 'sam' found.", "OK");
-                    EmptyStatePanel.IsVisible = true;
+                    var allFeatures = await gardenTable.QueryFeaturesAsync(new QueryParameters());
+                    var attributes = allFeatures.FirstOrDefault()?.Attributes.Keys;
+                    var attributeList = attributes != null ? string.Join(", ", attributes) : "No attributes found";
+                    //await DisplayAlert("Not Found", $"No garden named 'sam' found. Available attributes: {attributeList}", "OK");
                     return;
                 }
 
-                // Zoom to garden extent
-                var extent = gardenFeature.Geometry.Extent;
+                foreach (var gardenFeature in gardenResult)
+                {
+                   
+                    var gardenSymbol = _gardenLayer.Renderer?.GetSymbol(gardenFeature) ??
+                        new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, System.Drawing.Color.FromArgb(100, 0, 128, 0),
+                            new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.DarkGreen, 2));
+                    var gardenGraphic = new Graphic(gardenFeature.Geometry, gardenSymbol);
+                    CopyAttributes(gardenGraphic, gardenFeature, "Name");
+                    _gardenOverlay.Graphics.Add(gardenGraphic);
+                }
+
+                var plantTable = _plantLayer.FeatureTable as ServiceFeatureTable;
+                if (plantTable == null)
+                {
+                    //await DisplayAlert("Load Error", "Plant layer feature table is null.", "OK");
+                    return;
+                }
+
+                var plantQuery = new QueryParameters
+                {
+                    WhereClause = $"Name = 'sam'",
+                    ReturnGeometry = true,
+                    
+                };
+                var plantResult = await plantTable.QueryFeaturesAsync(plantQuery);
+                foreach (var plantFeature in plantResult)
+                {
+                    if (plantFeature.Geometry == null)
+                    {
+                        continue;
+                    }
+                    var plantSymbol = _plantLayer.Renderer?.GetSymbol(plantFeature) ??
+                        new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Green, 10);
+                    var plantGraphic = new Graphic(plantFeature.Geometry, plantSymbol);
+                    CopyAttributes(plantGraphic, plantFeature, "Name", "PlantName");
+                    _gardenOverlay.Graphics.Add(plantGraphic);
+                }
+
+                var firstGarden = gardenResult.FirstOrDefault();
+                var extent = firstGarden?.Geometry?.Extent;
+                if (extent == null)
+                {
+                    //await DisplayAlert("Load Error", "Garden feature extent is null.", "OK");
+                    return;
+                }
                 var expandedExtent = new Envelope(
                     extent.XMin - extent.Width * 0.25,
                     extent.YMin - extent.Height * 0.25,
@@ -237,61 +417,64 @@ namespace Plotany
                     extent.SpatialReference);
                 await GardenMapView.SetViewpointGeometryAsync(expandedExtent, 50);
 
-                // Create and load plant feature layer
-                var plantFeatureTable = new ServiceFeatureTable(new Uri(plantLayerUrl));
-                var plantLayer = new FeatureLayer(plantFeatureTable);
-                await plantLayer.LoadAsync();
-                if (plantLayer.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
-                {
-                    plantLayer.Renderer = new SimpleRenderer(_pointSymbol);
-                    GardenMapView.Map.OperationalLayers.Add(plantLayer);
-                }
+                //var gardenLabelDefinition = new LabelDefinition(
+                //    new SimpleLabelExpression("[Name]"),
+                //    new TextSymbol
+                //    {
+                //        Color = System.Drawing.Color.White,
+                //        Size = 12,
+                //        HaloColor = System.Drawing.Color.Black,
+                //        HaloWidth = 2
+                //    })
+                //{
+                //    LabelOverlapStrategy = LabelOverlapStrategy.Automatic
+                //};
+                //var plantLabelDefinition = new LabelDefinition(
+                //    new SimpleLabelExpression("[PlantName]"),
+                //    new TextSymbol
+                //    {
+                //        Color = System.Drawing.Color.Yellow,
+                //        Size = 10,
+                //        HaloColor = System.Drawing.Color.Black,
+                //        HaloWidth = 1
+                //    })
+                //{
+                //    LabelOverlapStrategy = LabelOverlapStrategy.Automatic
+                //};
+                //_gardenOverlay.LabelDefinitions.Add(gardenLabelDefinition);
+                //_gardenOverlay.LabelDefinitions.Add(plantLabelDefinition);
+                //_gardenOverlay.LabelsEnabled = true;
 
-                // Apply label definitions
-                _gardenOverlay.LabelDefinitions.Clear();
-                var labelDefinition = new LabelDefinition(
-                    new SimpleLabelExpression("[Name]"),
-                    new TextSymbol
-                    {
-                        Color = System.Drawing.Color.White,
-                        Size = 12,
-                        HaloColor = System.Drawing.Color.Black,
-                        HaloWidth = 2
-                    })
-                {
-                    LabelOverlapStrategy = LabelOverlapStrategy.Automatic
-                };
-                _gardenOverlay.LabelDefinitions.Add(labelDefinition);
-                _gardenOverlay.LabelsEnabled = true;
-
-                EmptyStatePanel.IsVisible = false;
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
-                EmptyStatePanel.IsVisible = true;
+               // await DisplayAlert("Load Error", $"Failed to load from ArcGIS Online: {ex.Message}", "OK");
             }
         }
 
         private async Task SaveToArcGISOnlineAsync(Geometry geometry, string gardenName, string plantName)
         {
-
-
-            string featureLayerUrl = geometry.GeometryType == GeometryType.Polygon
-                ? "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenLayers/FeatureServer/0"
-                : "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/PlantedPlants/FeatureServer/0";
-
-            var featureTable = new ServiceFeatureTable(new Uri(featureLayerUrl));
-            await featureTable.LoadAsync();
-            var feature = featureTable.CreateFeature();
-            feature.Geometry = geometry;
-            feature.Attributes["Name"] = gardenName;
-            if (geometry.GeometryType == GeometryType.Point)
+            try
             {
-                feature.Attributes["PlantName"] = plantName;
+                string featureLayerUrl = geometry.GeometryType == GeometryType.Polygon
+                    ? "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenLayers/FeatureServer/0"
+                    : "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/PlantedPlants/FeatureServer/0";
+                var featureTable = new ServiceFeatureTable(new Uri(featureLayerUrl));
+                await featureTable.LoadAsync();
+                var feature = featureTable.CreateFeature();
+                feature.Geometry = geometry;
+                feature.Attributes["Name"] = gardenName;
+                if (geometry.GeometryType == GeometryType.Point)
+                {
+                    feature.Attributes["PlantName"] = plantName;
+                }
+                await featureTable.AddFeatureAsync(feature);
+                await featureTable.ApplyEditsAsync();
             }
-            await featureTable.AddFeatureAsync(feature);
-            await featureTable.ApplyEditsAsync();
+            catch (Exception ex)
+            {
+               // await DisplayAlert("Save Error", $"Failed to save to ArcGIS Online: {ex.Message}", "OK");
+            }
         }
 
         private async Task StartLocationTracking()
@@ -305,22 +488,22 @@ namespace Plotany
                 var location = await WaitForLocationAsync(timeoutMillis: 10000);
                 if (location != null)
                 {
-                    await GardenMapView.SetViewpointCenterAsync(new MapPoint(-117.1828359, 34.0383765, SpatialReferences.Wgs84), 100);
+                    await GardenMapView.SetViewpointCenterAsync(location, 100);
                 }
                 else
                 {
                     var fallbackPoint = new MapPoint(-117.1828359, 34.0383765, SpatialReferences.Wgs84);
                     await GardenMapView.SetViewpointCenterAsync(fallbackPoint, 100);
-                    await DisplayAlert("Location fallback", "Using simulated location (Hyderabad).", "OK");
+                    //await DisplayAlert("Location Fallback", "Using simulated location.", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Location Error", ex.Message, "OK");
+               // await DisplayAlert("Location Error", $"Failed to start location tracking: {ex.Message}", "OK");
             }
             finally
             {
-                GardenMapView.LocationDisplay.DataSource?.StopAsync().GetAwaiter().GetResult();
+                await GardenMapView.LocationDisplay.DataSource?.StopAsync();
                 GardenMapView.LocationDisplay.IsEnabled = false;
             }
         }
@@ -352,8 +535,12 @@ namespace Plotany
             if (!confirm) return;
             try
             {
-                string featureLayerUrl = "https://services8.arcgis.com/LLNIdHmmdjO2qQ5q/arcgis/rest/services/GardenLayers/FeatureServer/0";
-                var featureTable = new ServiceFeatureTable(new Uri(featureLayerUrl));
+                var featureTable = _gardenLayer?.FeatureTable as ServiceFeatureTable;
+                if (featureTable == null)
+                {
+                    await DisplayAlert("Error", "Garden layer not available.", "OK");
+                    return;
+                }
                 await featureTable.LoadAsync();
                 var query = new QueryParameters();
                 var featureResult = await featureTable.QueryFeaturesAsync(query);
@@ -365,7 +552,6 @@ namespace Plotany
                 }
                 _gardenOverlay.Graphics.Clear();
                 _gardenOverlay.LabelDefinitions.Clear();
-                EmptyStatePanel.IsVisible = true;
                 PointButton.IsEnabled = true;
                 PolygonButton.IsEnabled = true;
                 SaveButton.IsEnabled = true;
@@ -378,19 +564,49 @@ namespace Plotany
             }
         }
 
-        private void PointButton_Click(object sender, EventArgs e)
+        private async void PlantListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (!_geometryEditor.IsStarted)
+            if (e.SelectedItem is PlantItem selectedPlant)
             {
-                _geometryEditor.Start(GeometryType.Point);
+                GardenMapView.IsVisible = true;
+                if (!_geometryEditor.IsStarted)
+                {
+                    _selectedFeature = null;
+                    _geometryEditor.Start(GeometryType.Point);
+                }
+                if (selectedPlant.Feature?.Geometry != null)
+                {
+                    await GardenMapView.SetViewpointGeometryAsync(selectedPlant.Feature.Geometry, 50);
+                }
             }
+            PlantListView.IsVisible = false;
         }
 
-        private void PolylineButton_Click(object sender, EventArgs e)
+        private async void PointButton_Click(object sender, EventArgs e)
         {
-            if (!_geometryEditor.IsStarted)
+            try
             {
-                _geometryEditor.Start(GeometryType.Polyline);
+                PlantListView.ItemsSource = null;
+                var queryParams = new QueryParameters
+                {
+                    WhereClause = "garden_name = 'sam'"
+                };
+                var queryResult = await _seedBagLayer.FeatureTable.QueryFeaturesAsync(queryParams);
+                var plantItems = queryResult.Select(f => new PlantItem
+                {
+                    Name = f.Attributes["plant_name"]?.ToString(),
+                    Feature = f
+                }).ToList();
+                PlantListView.ItemsSource = plantItems;
+                PlantListView.IsVisible = true;
+                if (plantItems.Count == 0)
+                {
+                    //await DisplayAlert("No Results", "No plants found for 'my1st'.", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                //await DisplayAlert("Error", $"Error querying plants: {ex.Message}", "OK");
             }
         }
 
@@ -398,6 +614,7 @@ namespace Plotany
         {
             if (!_geometryEditor.IsStarted)
             {
+                _selectedFeature = null;
                 var geometryEditorStyle = new GeometryEditorStyle
                 {
                     FillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, System.Drawing.Color.Transparent, null),
@@ -413,6 +630,8 @@ namespace Plotany
                     Tool = vertexTool
                 };
                 GardenMapView.GeometryEditor = _geometryEditor;
+                GardenMapView.Map.Basemap = new Basemap(BasemapStyle.ArcGISImageryStandard);
+                _currentBasemapStyle = BasemapStyle.ArcGISImageryStandard;
                 _geometryEditor.Start(GeometryType.Polygon);
             }
         }
@@ -435,6 +654,12 @@ namespace Plotany
         private void DiscardButton_Click(object sender, EventArgs e)
         {
             _geometryEditor.Stop();
+            if (_currentBasemapStyle == BasemapStyle.ArcGISImagery || _currentBasemapStyle == BasemapStyle.ArcGISImageryStandard)
+            {
+                GardenMapView.Map.Basemap = new Basemap(BasemapStyle.ArcGISLightGray);
+                _currentBasemapStyle = BasemapStyle.ArcGISLightGray;
+            }
+
             ResetFromEditingSession();
         }
 
@@ -443,41 +668,70 @@ namespace Plotany
             if (_geometryEditor.IsStarted) return;
             try
             {
-                var results = await GardenMapView.IdentifyGraphicsOverlaysAsync(e.Position, 5, false);
-                _selectedGraphic = results.FirstOrDefault()?.Graphics?.FirstOrDefault();
-                if (_selectedGraphic == null) return;
-                _selectedGraphic.IsSelected = true;
-                var geometryType = _selectedGraphic.Geometry.GeometryType;
-                _geometryEditor.Start(_selectedGraphic.Geometry);
-                _selectedGraphic.IsVisible = false;
+                var results = await GardenMapView.IdentifyLayersAsync(e.Position, 5, false);
+                var identifyResult = results.FirstOrDefault(r => r.LayerContent == _gardenLayer || r.LayerContent == _plantLayer);
+                _selectedFeature = identifyResult?.GeoElements.FirstOrDefault() as Feature;
+                if (_selectedFeature == null) return;
+                var geometryType = _selectedFeature.Geometry.GeometryType;
+                _geometryEditor.Start(_selectedFeature.Geometry);
             }
             catch (Exception ex)
             {
-                await Application.Current.Windows[0].Page.DisplayAlert("Error editing", ex.Message, "OK");
+                await Application.Current.MainPage.DisplayAlert("Error editing", ex.Message, "OK");
                 ResetFromEditingSession();
             }
         }
 
         private void ResetFromEditingSession()
         {
-            if (_selectedGraphic != null)
-            {
-                _selectedGraphic.IsSelected = false;
-                _selectedGraphic.IsVisible = true;
-                _selectedGraphic = null;
-            }
+            _selectedFeature = null;
         }
 
         private Symbol GetSymbol(GeometryType geometryType)
         {
             return geometryType switch
             {
-                GeometryType.Point => _pointSymbol,
-                GeometryType.Multipoint => _multiPointSymbol,
-                GeometryType.Polyline => _polylineSymbol,
-                GeometryType.Polygon => _polygonSymbol,
+                GeometryType.Point => new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Red, 10),
+                GeometryType.Multipoint => new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Red, 8),
+                GeometryType.Polyline => new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.Red, 3),
+                GeometryType.Polygon => new SimpleFillSymbol(
+                    SimpleFillSymbolStyle.Solid,
+                    System.Drawing.Color.Transparent,
+                    new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.DarkGreen, 2)),
                 _ => null
             };
+        }
+
+        private void CopyAttributes(Graphic graphic, Feature feature, params string[] attributeNames)
+        {
+            foreach (var attr in attributeNames)
+            {
+                if (feature.Attributes.ContainsKey(attr) && feature.Attributes[attr] != null)
+                {
+                    graphic.Attributes[attr] = feature.Attributes[attr];
+                }
+            }
+        }
+    }
+
+    public class PlantItem
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public Feature Feature { get; set; }
+    }
+
+    // Converter for ListView visibility
+    public class StringIsNotNullOrEmptyConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return !string.IsNullOrEmpty(value?.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }
